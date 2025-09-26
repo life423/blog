@@ -1,6 +1,7 @@
 import { generateScaleCSS } from './modular-scale.js';
 import { generateSpacingCSS } from './spacing-scale.js';
 import { generateColorsCSS } from './generate-colors.js';
+import { initResponsiveLayout } from './responsive-layout.js';
 import { initDrawer } from './drawer.js';
 
 // Initialize typography scale
@@ -29,6 +30,9 @@ generateSpacingCSS({
 
 // Initialize colors
 generateColorsCSS();
+
+// Initialize responsive layout
+initResponsiveLayout();
 
 // Initialize drawer
 initDrawer();

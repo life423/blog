@@ -1,0 +1,18 @@
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--brand-green-100);
+}
+
+.title{
+    color: var(--brand-green-800);
+}
+
+.menu-toggle {
+    background-color: transparent;
+    color: var(--brand-green-800);
+    border: none;
+    border-radius: 4px;
+    padding: var(--space-1);
+}

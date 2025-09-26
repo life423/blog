@@ -20,6 +20,7 @@ body {
     font-size: var(--ms-step-0);
     line-height: 1.6;
     -webkit-text-size-adjust: 100%;
+    color: var(--brand-gray-900);
 }
 
 img, video, svg, iframe { 

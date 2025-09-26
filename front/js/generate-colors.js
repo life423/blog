@@ -48,3 +48,13 @@ export function generateColorsCSS() {
   tag.textContent = css;
   return css;
 }
+
+// .site-header {
+//   background-color: var(--brand-green-100);
+//   color: var(--brand-gray-800);
+// }
+
+// .button {
+//   background-color: var(--color-primary);
+//   border: 1px solid var(--brand-green-600);
+// }

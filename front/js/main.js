@@ -1,5 +1,6 @@
 import { generateScaleCSS } from './modular-scale.js';
 import { generateSpacingCSS } from './spacing-scale.js';
+import { generateColorsCSS } from './generate-colors.js';
 import { initDrawer } from './drawer.js';
 
 // Initialize typography scale
@@ -25,6 +26,9 @@ generateSpacingCSS({
         { minWidth: 1200, ratio: 1.333 }
     ]
 });
+
+// Initialize colors
+generateColorsCSS();
 
 // Initialize drawer
 initDrawer();

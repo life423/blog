@@ -1,10 +1,4 @@
 
-
-/* Body background - must load after color variables */
-body {
-    background-color: var(--brand-gray-50) !important;
-}
-
 /* Responsive layout classes */
 .layout-narrow h1 {
     font-size: var(--ms-step-2);
@@ -30,3 +24,12 @@ body {
     display: flex;
     gap: var(--space-2);
 }
+
+.show {
+    display: block;
+}
+
+.hide {
+    display: none;
+}
+

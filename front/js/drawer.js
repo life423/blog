@@ -6,13 +6,29 @@ export function initDrawer() {
     if (!toggle || !drawer) return;
     
     toggle.addEventListener('click', () => {
-        drawer.classList.toggle('open');
+        const isOpen = drawer.classList.toggle('open');
+        
+        if (isOpen) {
+            toggle.innerHTML = '<i data-lucide="x"></i>';
+        } else {
+            toggle.innerHTML = '<i data-lucide="menu"></i>';
+        }
+        
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
     });
     
     // Close drawer when clicking outside
     document.addEventListener('click', (e) => {
         if (!drawer.contains(e.target) && !toggle.contains(e.target)) {
-            drawer.classList.remove('open');
+            if (drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+                toggle.innerHTML = '<i data-lucide="menu"></i>';
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }
         }
     });
 }

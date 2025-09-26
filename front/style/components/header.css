@@ -15,4 +15,6 @@
     border: none;
     border-radius: 4px;
     padding: var(--space-1);
+    font-size: var(--ms-step-2);
+    cursor: pointer;
 }

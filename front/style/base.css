@@ -9,7 +9,7 @@
 }
 
 /* Remove default spacing, but keep sensible list/heading behavior */
-html, body { height: 100%; }
+html, body { height: 100%;  }
 
 body {
     margin: 0;
@@ -20,7 +20,7 @@ body {
     font-size: var(--ms-step-0);
     line-height: 1.6;
     -webkit-text-size-adjust: 100%;
-    color: var(--brand-gray-900);
+    background-color: var(--brand-gray-50);
 }
 
 img, video, svg, iframe { 

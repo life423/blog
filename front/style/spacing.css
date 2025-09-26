@@ -56,7 +56,7 @@
 /* Default spacing for common elements */
 h1, h2, h3, h4, h5, h6 {
     margin-top: var(--space-3);
-    margin-bottom: var(--space-1);
+    margin-bottom: 0;
 }
 
 h1:first-child,

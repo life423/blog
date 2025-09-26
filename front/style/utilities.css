@@ -4,27 +4,39 @@
     justify-content: space-between;
 }
 
-/* Responsive layout classes (element-based) */
+/* Simplified responsive layout */
 .responsive-layout {
-    flex-direction: column;
-}
-
-.responsive-layout.layout-narrow {
-    flex-direction: column;
-    align-items: center;
-}
-
-.responsive-layout.layout-wide {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 }
 
-/* Typography responsive classes */
-.text-narrow h1 {
-    font-size: var(--ms-step-2); /* Smaller on narrow containers */
+/* Mobile-first responsive styles */
+@media (max-width: 599px) {
+    .responsive-layout h1 {
+        font-size: var(--ms-step-2);
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .desktop-nav {
+        display: none;
+    }
 }
 
-.text-wide h1 {
-    font-size: var(--ms-step-4); /* Larger on wide containers */
+@media (min-width: 600px) {
+    .responsive-layout h1 {
+        font-size: var(--ms-step-4);
+    }
+    
+    .menu-toggle {
+        display: none;
+    }
+    
+    .desktop-nav {
+        display: flex;
+        gap: var(--space-2);
+    }
 }

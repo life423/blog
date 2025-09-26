@@ -1,5 +1,5 @@
 
-/* Typography using modular scale variables */
+/* Typography using modular scale variables (steps -2 to 4) */
 h1 {
     font-size: var(--ms-step-4);  /* Largest heading */
     font-weight: 500;

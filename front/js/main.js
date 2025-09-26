@@ -1,5 +1,7 @@
 import { generateScaleCSS } from './modular-scale.js';
 import { generateSpacingCSS } from './spacing-scale.js';
+import { initResponsiveLayout } from './responsive-layout.js';
+import { initDrawer } from './drawer.js';
 
 // Initialize typography scale
 generateScaleCSS({
@@ -15,8 +17,8 @@ generateScaleCSS({
 
 // Initialize spacing scale
 generateSpacingCSS({
-    basePx: 8,              // smaller base for spacing
-    ratio: 1.5,             // perfect fifth ratio
+    basePx: 8,
+    ratio: 1.5,
     steps: { min: -2, max: 6 },
     name: "space",
     breakpoints: [
@@ -24,3 +26,9 @@ generateSpacingCSS({
         { minWidth: 1200, ratio: 1.333 }
     ]
 });
+
+// Initialize responsive layout system
+initResponsiveLayout();
+
+// Initialize drawer
+initDrawer();

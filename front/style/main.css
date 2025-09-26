@@ -9,5 +9,11 @@
 /* 3. Layout and spacing */
 @import url('./spacing.css');
 
-/* 4. Typography last (may override base styles) */
+/* 4. Utility classes */
+@import url('./utilities.css');
+
+/* 5. Components */
+@import url('./drawer.css');
+
+/* 6. Typography last (may override base styles) */
 @import url('./typography.css');

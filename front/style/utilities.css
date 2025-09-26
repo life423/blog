@@ -1,0 +1,30 @@
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Responsive layout classes (element-based) */
+.responsive-layout {
+    flex-direction: column;
+}
+
+.responsive-layout.layout-narrow {
+    flex-direction: column;
+    align-items: center;
+}
+
+.responsive-layout.layout-wide {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Typography responsive classes */
+.text-narrow h1 {
+    font-size: var(--ms-step-2); /* Smaller on narrow containers */
+}
+
+.text-wide h1 {
+    font-size: var(--ms-step-4); /* Larger on wide containers */
+}

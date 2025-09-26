@@ -2,18 +2,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-
-/* Simplified responsive layout */
-.responsive-layout {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    background-color: var(--brand-green-100);
 }
 
 /* Mobile-first responsive styles */
 @media (max-width: 599px) {
-    .responsive-layout h1 {
+    .site-header h1 {
         font-size: var(--ms-step-2);
     }
     
@@ -27,7 +21,7 @@
 }
 
 @media (min-width: 600px) {
-    .responsive-layout h1 {
+    .site-header h1 {
         font-size: var(--ms-step-4);
     }
     

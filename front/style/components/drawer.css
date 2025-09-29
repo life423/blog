@@ -23,3 +23,25 @@
     text-decoration: none;
     color: var(--brand-gray-800);
 }
+
+/* Remove focus outline and tap highlight */
+.menu-toggle {
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.menu-toggle:focus {
+    outline: none;
+}
+
+/* Smooth icon transition */
+.menu-toggle svg {
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover svg {
+    transform: scale(1.1);
+}

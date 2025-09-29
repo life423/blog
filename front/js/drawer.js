@@ -9,7 +9,7 @@ export function initDrawer() {
         const isOpen = drawer.classList.toggle('open');
         
         if (isOpen) {
-            toggle.innerHTML = '<i data-lucide="x"></i>';
+            toggle.innerHTML = '<i data-lucide="x" class="x-icon"></i>';
         } else {
             toggle.innerHTML = '<i data-lucide="menu"></i>';
         }

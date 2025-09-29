@@ -8,15 +8,6 @@ export function initResponsiveLayout() {
             document.querySelectorAll('.responsive-layout').forEach(el => {
                 el.classList.remove('layout-narrow', 'layout-wide');
                 el.classList.add(isNarrow ? 'layout-narrow' : 'layout-wide');
-                
-                // Apply show/hide classes
-                if (isNarrow) {
-                    el.querySelectorAll('.show-wide').forEach(elem => elem.classList.add('hide'));
-                    el.querySelectorAll('.show-narrow').forEach(elem => elem.classList.add('show'));
-                } else {
-                    el.querySelectorAll('.show-narrow').forEach(elem => elem.classList.add('hide'));
-                    el.querySelectorAll('.show-wide').forEach(elem => elem.classList.add('show'));
-                }
             });
         };
         
@@ -35,14 +26,8 @@ export function initResponsiveLayout() {
             
             if (width < 768) {
                 element.classList.add('layout-narrow');
-                // Apply show/hide classes for narrow layout
-                element.querySelectorAll('.show-wide').forEach(el => el.classList.add('hide'));
-                element.querySelectorAll('.show-narrow').forEach(el => el.classList.add('show'));
             } else {
                 element.classList.add('layout-wide');
-                // Apply show/hide classes for wide layout
-                element.querySelectorAll('.show-narrow').forEach(el => el.classList.add('hide'));
-                element.querySelectorAll('.show-wide').forEach(el => el.classList.add('show'));
             }
         });
     });

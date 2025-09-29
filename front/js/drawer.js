@@ -7,16 +7,14 @@ export function initDrawer() {
 
     if (!toggle || !drawer || !menuIcon || !closeIcon) return
 
+    const toggleIcons = (isOpen) => {
+        menuIcon.style.display = isOpen ? 'none' : 'block'
+        closeIcon.style.display = isOpen ? 'block' : 'none'
+    }
+
     toggle.addEventListener('click', () => {
         const isOpen = drawer.classList.toggle('open')
-
-        if (isOpen) {
-            menuIcon.style.display = 'none'
-            closeIcon.style.display = 'block'
-        } else {
-            menuIcon.style.display = 'block'
-            closeIcon.style.display = 'none'
-        }
+        toggleIcons(isOpen)
     })
 
     // Close drawer when clicking outside
@@ -24,8 +22,7 @@ export function initDrawer() {
         if (!drawer.contains(e.target) && !toggle.contains(e.target)) {
             if (drawer.classList.contains('open')) {
                 drawer.classList.remove('open')
-                menuIcon.style.display = 'block'
-                closeIcon.style.display = 'none'
+                toggleIcons(false)
             }
         }
     })

@@ -1,36 +1,40 @@
 import { brandBlue, brandGray, brandGreen, brandOrange } from './colors.js'
 
 export function generateColorsCSS() {
-    let css = `:root {\n  \n`
-
+    const parts = [':root {']
+    
     Object.entries(brandGreen).forEach(([key, value]) => {
-        css += `  --brand-green-${key}: ${value};\n`
+        parts.push(`  --brand-green-${key}: ${value};`)
     })
-
-    css += `\n`
-
+    
+    parts.push('')
+    
     Object.entries(brandOrange).forEach(([key, value]) => {
-        css += `  --brand-orange-${key}: ${value};\n`
+        parts.push(`  --brand-orange-${key}: ${value};`)
     })
-
-    css += `\n`
-
+    
+    parts.push('')
+    
     Object.entries(brandBlue).forEach(([key, value]) => {
-        css += `  --brand-blue-${key}: ${value};\n`
+        parts.push(`  --brand-blue-${key}: ${value};`)
     })
-
-    css += `\n`
-
+    
+    parts.push('')
+    
     Object.entries(brandGray).forEach(([key, value]) => {
-        css += `  --brand-gray-${key}: ${value};\n`
+        parts.push(`  --brand-gray-${key}: ${value};`)
     })
-
-    css += `\n  \n`
-    css += `  --color-primary: var(--brand-green-500);\n`
-    css += `  --color-secondary: var(--brand-blue-500);\n`
-    css += `  --color-accent: var(--brand-orange-500);\n`
-    css += `  --color-neutral: var(--brand-gray-500);\n`
-    css += `}\n`
+    
+    parts.push(
+        '',
+        '  --color-primary: var(--brand-green-500);',
+        '  --color-secondary: var(--brand-blue-500);',
+        '  --color-accent: var(--brand-orange-500);',
+        '  --color-neutral: var(--brand-gray-500);',
+        '}'
+    )
+    
+    const css = parts.join('\n')
 
     const id = 'generated-colors'
     let tag = document.getElementById(id)

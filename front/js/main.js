@@ -1,11 +1,11 @@
-import { generateScaleCSS } from './modular-scale.js';
+import { generateTypeScale } from './generate-type-scale.js';
 import { generateSpacingCSS } from './spacing-scale.js';
 import { generateColorsCSS } from './generate-colors.js';
 import { initResponsiveLayout } from './responsive-layout.js';
 import { initDrawer } from './drawer.js';
 
 // Initialize typography scale
-generateScaleCSS({
+generateTypeScale({
     basePx: 16,
     ratio: 1.25,
     steps: { min: -2, max: 4 },

@@ -4,50 +4,49 @@ export function generateTypeScale({
     steps = { min: -2, max: 4 },
     rootPx = 16,
     name = 'ms',
-    breakpoints = [
-        { minWidth: 768, ratio: 1.333 },
-        { minWidth: 1200, ratio: 1.414 },
-    ],
+    minViewport = 320,
+    maxViewport = 1200,
     precision = 3,
 } = {}) {
-    const round = v =>
-        Math.round(v * Math.pow(10, precision)) / Math.pow(10, precision)
-
-    const pxToRem = px => round(px / rootPx)
-
-    const compute = r => {
-        const out = {}
-        for (let s = steps.min; s <= steps.max; s++) {
-            const sizePx = basePx * Math.pow(r, s)
-            out[s] = `${pxToRem(sizePx)}rem`
-        }
-        return out
-    }
-
-    let css = `:root{\n  \n`
-    const baseSizes = compute(ratio)
+    if (typeof document === 'undefined') return '';
+    
+    const round = v => Math.round(v * Math.pow(10, precision)) / Math.pow(10, precision);
+    const pxToRem = px => round(px / rootPx);
+    
+    // Calculate min and max ratios for fluid scaling
+    const minRatio = ratio * 0.85; // Smaller on mobile
+    const maxRatio = ratio * 1.15; // Larger on desktop
+    
+    const css = [];
+    css.push(':root {');
+    
     for (let s = steps.min; s <= steps.max; s++) {
-        css += `  --${name}-step-${s}: ${baseSizes[s]};\n`
+        // Calculate sizes at min and max viewports
+        const minSize = basePx * Math.pow(minRatio, s);
+        const maxSize = basePx * Math.pow(maxRatio, s);
+        
+        const minRem = pxToRem(minSize);
+        const maxRem = pxToRem(maxSize);
+        
+        // Calculate viewport coefficient for fluid scaling
+        const vwCoeff = round((maxSize - minSize) / (maxViewport - minViewport) * 100);
+        const baseRem = round(minRem - (minViewport * vwCoeff / 100 / rootPx));
+        
+        css.push(`  --${name}-step-${s}: clamp(${minRem}rem, ${baseRem}rem + ${vwCoeff}vw, ${maxRem}rem);`);
     }
-    css += `}\n\n`
-
-    for (const bp of breakpoints) {
-        const sizes = compute(bp.ratio ?? ratio)
-        css += `@media (min-width: ${bp.minWidth}px) {\n  :root{\n`
-        css += `    \n`
-        for (let s = steps.min; s <= steps.max; s++) {
-            css += `    --${name}-step-${s}: ${sizes[s]};\n`
-        }
-        css += `  }\n}\n\n`
-    }
-
-    const id = `modular-scale-${name}`
-    let tag = document.getElementById(id)
+    
+    css.push('}');
+    
+    const cssString = css.join('\n');
+    
+    const id = `modular-scale-${name}`;
+    let tag = document.getElementById(id);
     if (!tag) {
-        tag = document.createElement('style')
-        tag.id = id
-        document.head.appendChild(tag)
+        tag = document.createElement('style');
+        tag.id = id;
+        document.head.appendChild(tag);
     }
-    tag.textContent = css
-    return css
+    tag.textContent = cssString;
+    
+    return cssString;
 }

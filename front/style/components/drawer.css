@@ -1,8 +1,8 @@
 .drawer {
     position: fixed;
     top: 0;
-    left: -75vw;
-    width: 75vw;
+    left: calc(-1 * clamp(280px, 75vw, 520px));
+    width: clamp(280px, 75vw, 520px);
     height: 100vh;
     background-color: var(--brand-gray-50);
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
@@ -10,7 +10,7 @@
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    padding: var(--space-4);
+    padding: clamp(1rem, 0.8rem + 1vw, 2rem);
     gap: var(--space-2);
 }
 
@@ -19,9 +19,12 @@
 }
 
 .drawer a {
-    padding: var(--space-2);
+    padding: clamp(0.5rem, 0.4rem + 0.6vw, 1rem);
     text-decoration: none;
     color: var(--brand-gray-800);
+    min-height: clamp(40px, 4vw, 48px);
+    display: flex;
+    align-items: center;
 }
 
 /* Remove focus outline and tap highlight */

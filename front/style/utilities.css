@@ -1,19 +1,17 @@
-
-/* Responsive layout classes */
-.layout-narrow h1 {
-    font-size: var(--ms-step-2);
+/* Container with fluid bounds */
+.container {
+    width: min(100%, clamp(42rem, 80vw, 72rem));
+    padding-inline: clamp(0.75rem, 2vw, 2rem);
+    margin-inline: auto;
 }
 
+/* Responsive layout classes */
 .layout-narrow .menu-toggle {
     display: block;
 }
 
 .layout-narrow .desktop-nav {
     display: none;
-}
-
-.layout-wide h1 {
-    font-size: var(--ms-step-4);
 }
 
 .layout-wide .menu-toggle {
@@ -31,5 +29,24 @@
 
 .hide {
     display: none;
+}
+
+/* Fluid grid and card layouts */
+.post-grid {
+    display: grid;
+    gap: clamp(0.75rem, 0.5rem + 1vw, 2rem);
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+}
+
+.post-card {
+    padding: clamp(0.75rem, 0.5rem + 0.8vw, 1.5rem);
+    border-radius: clamp(0.25rem, 0.2rem + 0.2vw, 0.5rem);
+}
+
+.post-card img {
+    max-height: clamp(180px, 22vw, 360px);
+    width: 100%;
+    object-fit: cover;
+    border-radius: clamp(0.25rem, 0.2rem + 0.2vw, 0.5rem);
 }
 

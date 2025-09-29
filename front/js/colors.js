@@ -54,7 +54,7 @@ export const brandColors = {
     green: brandGreen,
     orange: brandOrange,
     blue: brandBlue,
-    gray: brandGray
+    gray: brandGray,
 }
 
 export const coreColors = {
@@ -64,4 +64,4 @@ export const coreColors = {
     gray: brandGray[500],
 }
 
-export default brandColors;
+export default brandColors

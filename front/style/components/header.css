@@ -11,6 +11,10 @@
     color: var(--brand-green-800);
 }
 
+.desktop-nav a {
+    color: var(--brand-green-800);
+}
+
 .menu-toggle {
     background-color: transparent;
     color: var(--brand-green-800);

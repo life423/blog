@@ -1,60 +1,44 @@
-// generate-colors.js — Generate CSS variables from color objects
-import { brandGreen, brandOrange, brandBlue, brandGray } from './colors.js';
+import { brandBlue, brandGray, brandGreen, brandOrange } from './colors.js'
 
 export function generateColorsCSS() {
-  let css = `:root {\n  /* Brand Colors Generated from JS */\n`;
-  
-  // Generate brand green variables
-  Object.entries(brandGreen).forEach(([key, value]) => {
-    css += `  --brand-green-${key}: ${value};\n`;
-  });
-  
-  css += `\n`;
-  
-  // Generate brand orange variables
-  Object.entries(brandOrange).forEach(([key, value]) => {
-    css += `  --brand-orange-${key}: ${value};\n`;
-  });
-  
-  css += `\n`;
-  
-  // Generate brand blue variables
-  Object.entries(brandBlue).forEach(([key, value]) => {
-    css += `  --brand-blue-${key}: ${value};\n`;
-  });
-  
-  css += `\n`;
-  
-  // Generate brand gray variables
-  Object.entries(brandGray).forEach(([key, value]) => {
-    css += `  --brand-gray-${key}: ${value};\n`;
-  });
-  
-  css += `\n  /* Core Colors */\n`;
-  css += `  --color-primary: var(--brand-green-500);\n`;
-  css += `  --color-secondary: var(--brand-blue-500);\n`;
-  css += `  --color-accent: var(--brand-orange-500);\n`;
-  css += `  --color-neutral: var(--brand-gray-500);\n`;
-  css += `}\n`;
+    let css = `:root {\n  \n`
 
-  // Inject styles
-  const id = 'generated-colors';
-  let tag = document.getElementById(id);
-  if (!tag) {
-    tag = document.createElement('style');
-    tag.id = id;
-    document.head.appendChild(tag);
-  }
-  tag.textContent = css;
-  return css;
+    Object.entries(brandGreen).forEach(([key, value]) => {
+        css += `  --brand-green-${key}: ${value};\n`
+    })
+
+    css += `\n`
+
+    Object.entries(brandOrange).forEach(([key, value]) => {
+        css += `  --brand-orange-${key}: ${value};\n`
+    })
+
+    css += `\n`
+
+    Object.entries(brandBlue).forEach(([key, value]) => {
+        css += `  --brand-blue-${key}: ${value};\n`
+    })
+
+    css += `\n`
+
+    Object.entries(brandGray).forEach(([key, value]) => {
+        css += `  --brand-gray-${key}: ${value};\n`
+    })
+
+    css += `\n  \n`
+    css += `  --color-primary: var(--brand-green-500);\n`
+    css += `  --color-secondary: var(--brand-blue-500);\n`
+    css += `  --color-accent: var(--brand-orange-500);\n`
+    css += `  --color-neutral: var(--brand-gray-500);\n`
+    css += `}\n`
+
+    const id = 'generated-colors'
+    let tag = document.getElementById(id)
+    if (!tag) {
+        tag = document.createElement('style')
+        tag.id = id
+        document.head.appendChild(tag)
+    }
+    tag.textContent = css
+    return css
 }
-
-// .site-header {
-//   background-color: var(--brand-green-100);
-//   color: var(--brand-gray-800);
-// }
-
-// .button {
-//   background-color: var(--color-primary);
-//   border: 1px solid var(--brand-green-600);
-// }

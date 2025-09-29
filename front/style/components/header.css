@@ -6,7 +6,7 @@
     padding-block: var(--space-1);
     padding-left: var(--space-4);
     /* closed state: regular right padding; safe-area aware */
-    padding-right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
+    padding-right: calc(var(--space-4) + env(safe-area-inset-right, 0));
 }
 
 .title{
@@ -14,6 +14,7 @@
     font-size: var(--ms-step-3);
     line-height: 1.25;
     font-weight: 600;
+    margin: 0; /* override global heading margins for header layout */
 }
 
 .desktop-nav a {
@@ -30,12 +31,12 @@
 
 .desktop-nav a:active {
     background-color: var(--brand-blue-50);
-    box-shadow: inset 0 0 0 2px var(--brand-blue-200);
+    box-shadow: inset 0 0 0 var(--space--2) var(--brand-blue-200);
 }
 
 .desktop-nav a:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px var(--brand-blue-600);
+    box-shadow: 0 0 0 var(--space--2) var(--brand-blue-600);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -60,10 +61,10 @@
     }
     .desktop-nav a:active {
         background-color: var(--brand-gray-700);
-        box-shadow: inset 0 0 0 2px var(--brand-gray-600);
+        box-shadow: inset 0 0 0 var(--space--2) var(--brand-gray-600);
     }
     .desktop-nav a:focus-visible {
-        box-shadow: 0 0 0 3px var(--brand-blue-500);
+        box-shadow: 0 0 0 var(--space--2) var(--brand-blue-500);
     }
 }
 
@@ -72,10 +73,10 @@
     color: var(--brand-green-400);
     border: none;
     border-radius: clamp(0.25rem, 0.2rem + 0.2vw, 0.5rem);
-    padding: clamp(0.25rem, 0.2rem + 0.4vw, 0.75rem);
+    padding: var(--space--1);
     cursor: pointer;
-    min-height: 48px;
-    min-width: 48px;
+    min-height: var(--space-4);
+    min-width: var(--space-4);
     /* closed state: participate in flex for perfect alignment */
     position: static;
     margin-left: auto;
@@ -83,8 +84,8 @@
 
 .menu-toggle svg {
     fill: var(--brand-green-400);
-    width: clamp(20px, 2.2vw, 28px);
-    height: clamp(20px, 2.2vw, 28px);
+    width: var(--space-3);
+    height: var(--space-3);
     pointer-events: none;
     transition: transform 0.3s ease;
 }
@@ -98,7 +99,7 @@
 }
 .menu-toggle:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px var(--brand-blue-500);
+    box-shadow: 0 0 0 var(--space--2) var(--brand-blue-500);
 }
 
 /* Fluid title size: bump at tablet/desktop */
@@ -117,7 +118,7 @@
 /* When drawer is open, keep toggle fixed and reachable above overlay */
 body.no-scroll .menu-toggle {
   position: fixed;
-  top: calc(var(--space-1) + env(safe-area-inset-top, 0px));
-  right: calc(var(--space-4) + env(safe-area-inset-right, 0px));
+  top: calc(var(--space-1) + env(safe-area-inset-top, 0));
+  right: calc(var(--space-4) + env(safe-area-inset-right, 0));
   z-index: 1100;
 }

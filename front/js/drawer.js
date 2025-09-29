@@ -1,34 +1,32 @@
 // Drawer navigation functionality
 export function initDrawer() {
-    const toggle = document.querySelector('.menu-toggle');
-    const drawer = document.querySelector('.drawer');
-    
-    if (!toggle || !drawer) return;
-    
+    const toggle = document.querySelector('.menu-toggle')
+    const drawer = document.querySelector('.drawer')
+    const menuIcon = toggle?.querySelector('.menu-icon')
+    const closeIcon = toggle?.querySelector('.close-icon')
+
+    if (!toggle || !drawer || !menuIcon || !closeIcon) return
+
     toggle.addEventListener('click', () => {
-        const isOpen = drawer.classList.toggle('open');
-        
+        const isOpen = drawer.classList.toggle('open')
+
         if (isOpen) {
-            toggle.innerHTML = '<i data-lucide="x" class="x-icon"></i>';
+            menuIcon.style.display = 'none'
+            closeIcon.style.display = 'block'
         } else {
-            toggle.innerHTML = '<i data-lucide="menu"></i>';
+            menuIcon.style.display = 'block'
+            closeIcon.style.display = 'none'
         }
-        
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-    });
-    
+    })
+
     // Close drawer when clicking outside
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', e => {
         if (!drawer.contains(e.target) && !toggle.contains(e.target)) {
             if (drawer.classList.contains('open')) {
-                drawer.classList.remove('open');
-                toggle.innerHTML = '<i data-lucide="menu"></i>';
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
+                drawer.classList.remove('open')
+                menuIcon.style.display = 'block'
+                closeIcon.style.display = 'none'
             }
         }
-    });
+    })
 }

@@ -1,0 +1,37 @@
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--brand-green-100);
+}
+
+.title{
+    color: var(--brand-green-800);
+}
+
+.menu-toggle {
+    background-color: transparent;
+    color: var(--brand-green-800);
+    border: none;
+    border-radius: 4px;
+    padding: var(--space-1);
+    font-size: var(--ms-step-2);
+    cursor: pointer;
+}
+
+.menu-toggle svg {
+    fill: var(--brand-green-800);
+    width: 28px;
+    height: 28px;
+    pointer-events: none;
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover svg {
+    transform: scale(1.1);
+}
+
+.menu-toggle:focus {
+    outline: none;
+}
+

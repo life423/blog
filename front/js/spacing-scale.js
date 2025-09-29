@@ -44,6 +44,34 @@ export function generateSpacingCSS({
     css += `  }\n}\n\n`;
   }
 
+  // Generate utility classes
+  css += `/* Spacing utility classes */\n`;
+  
+  // Margin utilities
+  for (let s = steps.min; s <= steps.max; s++) {
+    css += `.m-${s} { margin: var(--${name}-${s}); }\n`;
+    css += `.mt-${s} { margin-top: var(--${name}-${s}); }\n`;
+    css += `.mb-${s} { margin-bottom: var(--${name}-${s}); }\n`;
+  }
+  
+  // Padding utilities
+  for (let s = steps.min; s <= steps.max; s++) {
+    css += `.p-${s} { padding: var(--${name}-${s}); }\n`;
+  }
+  
+  // Gap utilities
+  for (let s = steps.min; s <= steps.max; s++) {
+    css += `.gap-${s} { gap: var(--${name}-${s}); }\n`;
+  }
+  
+  css += `\n/* Default element spacing */\n`;
+  css += `h1, h2, h3, h4, h5, h6 { margin-top: var(--${name}-3); margin-bottom: 0; }\n`;
+  css += `h1:first-child, h2:first-child, h3:first-child, h4:first-child { margin-top: 0; }\n`;
+  css += `p { margin-top: 0; margin-bottom: var(--${name}-2); }\n`;
+  css += `p:last-child { margin-bottom: 0; }\n`;
+  css += `section { margin-bottom: var(--${name}-5); }\n`;
+  css += `article { margin-bottom: var(--${name}-4); }\n`;
+
   // inject styles
   const id = `spacing-scale-${name}`;
   let tag = document.getElementById(id);

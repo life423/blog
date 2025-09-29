@@ -1,37 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beyond the Stack: AI & Engineering Insights</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style/main.css">
-</head>
-<body>
-    <header class="site-header responsive-layout p-3">
-        <h1>Beyond the Stack</h1>
-        
-        <button class="menu-toggle" aria-label="Toggle menu">
-            ☰
-        </button>
-        
-        <!-- Mobile drawer navigation -->
-        <nav class="drawer" id="nav-drawer">
-            <a href="#">Home</a>
-            <a href="#">About</a>
-            <a href="#">Contact</a>
-        </nav>
-        
-        <!-- Desktop inline navigation -->
-        <nav class="desktop-nav">
-            <a href="#">Home</a>
-            <a href="#">About</a>
-            <a href="#">Contact</a>
-        </nav>
-    </header>
-    
-    <script type="module" src="js/main.js"></script>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Beyond the Stack: AI & Engineering Insights</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+            rel="stylesheet"
+        />
+
+        <link rel="stylesheet" href="style/main.css" />
+    </head>
+    <body>
+        <header class="site-header responsive-layout p-3">
+            <h1 class="title">Beyond the Stack</h1>
+
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="menu-icon"
+                >
+                    <path d="M3 6h18M3 12h18M3 18h18" />
+                    <!-- hamburger bars -->
+                </svg>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="close-icon"
+                    style="display: none"
+                >
+                    <path d="M6.75 6.75L17.25 17.25" />
+                    <path d="M6.75 17.25L17.25 6.75" />
+                </svg>
+            </button>
+
+            <!-- Mobile drawer navigation -->
+            <nav class="drawer" id="nav-drawer" aria-label="Mobile navigation">
+                <a href="#">Home</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+            </nav>
+
+            <!-- Desktop inline navigation -->
+            <nav class="desktop-nav" aria-label="Primary navigation">
+                <a href="#">Home</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+            </nav>
+        </header>
+
+        <script type="module" src="js/main.js"></script>
+    </body>
 </html>

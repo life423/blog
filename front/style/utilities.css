@@ -1,42 +1,35 @@
-.site-header {
+
+/* Responsive layout classes */
+.layout-narrow h1 {
+    font-size: var(--ms-step-2);
+}
+
+.layout-narrow .menu-toggle {
+    display: block;
+}
+
+.layout-narrow .desktop-nav {
+    display: none;
+}
+
+.layout-wide h1 {
+    font-size: var(--ms-step-4);
+}
+
+.layout-wide .menu-toggle {
+    display: none;
+}
+
+.layout-wide .desktop-nav {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    gap: var(--space-2);
 }
 
-/* Simplified responsive layout */
-.responsive-layout {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+.show {
+    display: block;
 }
 
-/* Mobile-first responsive styles */
-@media (max-width: 599px) {
-    .responsive-layout h1 {
-        font-size: var(--ms-step-2);
-    }
-    
-    .menu-toggle {
-        display: block;
-    }
-    
-    .desktop-nav {
-        display: none;
-    }
+.hide {
+    display: none;
 }
 
-@media (min-width: 600px) {
-    .responsive-layout h1 {
-        font-size: var(--ms-step-4);
-    }
-    
-    .menu-toggle {
-        display: none;
-    }
-    
-    .desktop-nav {
-        display: flex;
-        gap: var(--space-2);
-    }
-}

@@ -5,12 +5,33 @@
     margin-inline: auto;
 }
 
-/* Responsive layout classes */
-.desktop-nav {
-    display: flex;
-    gap: var(--space-2);
+/* Container query setup */
+.responsive-layout {
+    container-type: inline-size;
 }
 
+/* Default styles (mobile-first) */
+.menu-toggle {
+    display: block;
+}
+
+.desktop-nav {
+    display: none;
+}
+
+/* Container queries (modern browsers) */
+@container (min-width: 768px) {
+    .menu-toggle {
+        display: none;
+    }
+    
+    .desktop-nav {
+        display: flex;
+        gap: var(--space-2);
+    }
+}
+
+/* Fallback for older browsers - keep existing layout classes */
 .layout-narrow .menu-toggle {
     display: block;
 }

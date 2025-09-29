@@ -4,9 +4,9 @@
     left: calc(-1 * clamp(280px, 75vw, 520px));
     width: clamp(280px, 75vw, 520px);
     height: 100vh;
-    background-color: var(--brand-gray-50);
+    background-color: var(--brand-green-50);
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.12);
-    border-right: 1px solid var(--brand-gray-200);
+    border-right: 1px solid var(--brand-green-100);
     transition: left 0.3s ease;
     z-index: 1000;
     display: flex;
@@ -18,16 +18,20 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .drawer.open {
     left: 0;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 .drawer a {
     /* Use spacing scale for consistent rhythm */
     padding: var(--space-1) var(--space-2);
-    color: var(--brand-gray-900);
+    color: var(--brand-green-800);
     min-height: clamp(44px, 6vh, 56px);
     display: flex;
     align-items: center;
@@ -41,17 +45,18 @@
 /* Visual separation handled by parent gap */
 
 .drawer a:hover {
-    background-color: var(--brand-green-100);
+    background-color: var(--brand-blue-50);
     color: var(--brand-green-800);
 }
 
 .drawer a:active {
-    background-color: var(--brand-green-200);
+    background-color: var(--brand-blue-50);
+    box-shadow: inset 0 0 0 2px var(--brand-blue-200);
 }
 
 .drawer a:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px var(--brand-green-300);
+    box-shadow: 0 0 0 3px var(--brand-blue-600);
 }
 
 /* Remove focus outline and tap highlight */
@@ -81,20 +86,34 @@
 @media (prefers-color-scheme: dark) {
     .drawer {
         background-color: var(--brand-gray-900);
-        border-right-color: var(--brand-gray-700);
+        border-right-color: var(--brand-gray-900); /* remove visible divider in dark */
+        border-right-width: 0;
         box-shadow: 2px 0 14px rgba(0, 0, 0, 0.5);
     }
     .drawer a {
-        color: var(--brand-gray-100);
+        color: var(--brand-green-200);
     }
     .drawer a:hover {
         background-color: var(--brand-gray-800);
-        color: var(--brand-green-300);
+        color: var(--brand-green-200);
     }
     .drawer a:active {
         background-color: var(--brand-gray-700);
+        box-shadow: inset 0 0 0 2px var(--brand-gray-600);
     }
     .drawer a:focus-visible {
-        box-shadow: 0 0 0 3px var(--brand-green-600);
+        box-shadow: 0 0 0 3px var(--brand-blue-500);
     }
+}
+
+/* Mobile: make drawer full-width and slide completely on/off screen */
+@media (max-width: 768px) {
+  .drawer {
+    width: 100vw;
+    left: -100vw;
+    border-right: none;
+  }
+  .drawer.open {
+    left: 0;
+  }
 }

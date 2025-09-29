@@ -2,6 +2,10 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color-scheme: light dark;
+    /* Semantic tokens */
+    --bg-primary: var(--brand-gray-800);
+    --bg-surface: var(--brand-gray-700);
+    --text-primary: var(--brand-gray-100);
 }
 
 *,
@@ -21,8 +25,14 @@ body {
     font-size: var(--ms-step-0);
     line-height: 1.5;
     text-size-adjust: 100%;
-    background-color: var(--brand-gray-50);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
+
+/* Prevent background scroll when drawer is open */
+body.no-scroll {
+  overflow: hidden;
+}
 
 img,
 video,
@@ -66,4 +76,11 @@ textarea {
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
     }
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
 }

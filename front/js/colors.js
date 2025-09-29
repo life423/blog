@@ -1,3 +1,4 @@
+// primary
 export const brandGreen = {
     50: '#ECFDF5',
     100: '#D1FAE5',
@@ -10,7 +11,7 @@ export const brandGreen = {
     800: '#065F46',
     900: '#064E3B',
 }
-
+//accent
 export const brandOrange = {
     50: '#FFF2E8',
     100: '#FFE6D1',
@@ -23,7 +24,7 @@ export const brandOrange = {
     800: '#993F00',
     900: '#662A00',
 }
-
+//secondary
 export const brandBlue = {
     50: '#EBF8FF',
     100: '#D1EEFC',
@@ -36,7 +37,7 @@ export const brandBlue = {
     800: '#075985',
     900: '#0C4A6E',
 }
-
+// neutrals
 export const brandGray = {
     50: '#FAFAFA',
     100: '#F4F4F5',
@@ -64,4 +65,4 @@ export const coreColors = {
     gray: brandGray[500],
 }
 
-export default brandColors
+export default brandColors;

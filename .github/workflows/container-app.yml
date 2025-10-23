@@ -7,7 +7,7 @@ on:
 
 env:
   DOCKER_REPOSITORY: docker.io/aiandrew631/blog
-  CONTAINER_APP_NAME: blog
+  CONTAINER_APP_NAME: blogportfolio
   AZURE_RESOURCE_GROUP: portfolio-apps
 
 jobs:

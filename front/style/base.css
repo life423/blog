@@ -2,10 +2,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color-scheme: light dark;
-    --bg-primary: var(--brand-gray-800);
-    --bg-surface: var(--brand-gray-700);
-    --text-primary: var(--brand-gray-100);
+    --bg-primary: var(--brand-green-100); /* Page edges (green) */
+    --bg-surface: var(--brand-gray-50);  /* Container background */
+    --text-primary: var(--brand-gray-900); /* Edge text on light green */
     --text-secondary: var(--brand-gray-300);
+    --text-surface: var(--brand-gray-900); /* Container text */
+    --accent: var(--brand-blue-500); /* Accent/Borders */
     --green-50: var(--brand-green-50);
 }
 
@@ -33,18 +35,21 @@ body {
     text-size-adjust: 100%;
 
     color: var(--text-primary);
-    background-color: var(--green-50);
+    background-color: var(--bg-primary);
 }
 
 .container {
     container-type: inline-size;
     container-name: layout;
 
-    inline-size: clamp(42rem, 80vw, 120rem);
+    /* Full-bleed on small screens, centered with max width */
+    inline-size: min(100%, 120rem);
     margin-inline: auto;
 
-    block-size: 100dvh;
-    background-color:var(--brand-green-400) ;
+    /* Grow with content but fill viewport at minimum */
+    min-block-size: 100dvh;
+    background-color: var(--bg-surface);
+    color: var(--text-surface);
 }
 
 body.no-scroll {
@@ -93,4 +98,30 @@ textarea {
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
     }
+}
+
+/* Code blocks */
+pre,
+pre code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+pre {
+    background-color: var(--brand-gray-900);
+    color: var(--brand-green-400);
+    padding: clamp(0.75rem, 0.6rem + 0.6vw, 1.25rem);
+    border-radius: clamp(0.25rem, 0.2rem + 0.2vw, 0.5rem);
+    overflow: auto;
+}
+
+code {
+    font-size: 0.95em;
+}
+
+/* Hero section just under header */
+.hero {
+    background-color: var(--brand-green-100);
+    color: var(--brand-gray-900);
+    padding: clamp(1rem, 0.8rem + 1vw, 2rem);
+    border-bottom: 1px solid var(--brand-green-200);
 }

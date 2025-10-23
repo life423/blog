@@ -2,11 +2,11 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color-scheme: light dark;
-    /* Semantic tokens */
     --bg-primary: var(--brand-gray-800);
     --bg-surface: var(--brand-gray-700);
     --text-primary: var(--brand-gray-100);
     --text-secondary: var(--brand-gray-300);
+    --green-50: var(--brand-green-50);
 }
 
 *,
@@ -33,22 +33,20 @@ body {
     text-size-adjust: 100%;
 
     color: var(--text-primary);
+    background-color: var(--green-50);
 }
 
 .container {
     container-type: inline-size;
-    container-name: layout; /* optional: enables @container queries */
-    
+    container-name: layout;
+
     inline-size: clamp(42rem, 80vw, 120rem);
     margin-inline: auto;
-    /* padding-inline: clamp(0.75rem, 2vw, 2rem); */
-  
-    block-size: 100dvh; /* dynamic viewport height for mobile */
-    background-color: pink;
-  }
-  
 
-/* Prevent background scroll when drawer is open */
+    block-size: 100dvh;
+    background-color:var(--brand-green-400) ;
+}
+
 body.no-scroll {
     overflow: hidden;
 }

@@ -39,7 +39,7 @@
     box-shadow: 0 0 0 var(--space--2) var(--brand-blue-600);
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .site-header {
         background-color: var(--brand-gray-900);
     }
@@ -66,7 +66,7 @@
     .desktop-nav a:focus-visible {
         box-shadow: 0 0 0 var(--space--2) var(--brand-blue-500);
     }
-}
+} */
 
 .menu-toggle {
     background-color: transparent;
@@ -101,12 +101,12 @@
     box-shadow: 0 0 0 var(--space--2) var(--brand-blue-500);
 }
 
-@media (min-width: 768px) {
+/* @media (min-width: 768px) {
     .title {
         font-size: var(--ms-step-4);
         font-weight: 500;
     }
-}
+} */
 
 .menu-toggle:active {
     transform: scale(0.96);

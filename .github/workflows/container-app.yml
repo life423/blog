@@ -1,0 +1,60 @@
+name: Build and Deploy Container App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  DOCKER_REPOSITORY: docker.io/aiandrew631/blog
+  CONTAINER_APP_NAME: blog
+  AZURE_RESOURCE_GROUP: portfolio-apps
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.DOCKER_REPOSITORY }}:${{ github.sha }}
+            ${{ env.DOCKER_REPOSITORY }}:latest
+
+      - name: Share image tag
+        run: echo "IMAGE_TAG=${{ env.DOCKER_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_ENV
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Update Container App revision
+        env:
+          IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}:${{ github.sha }}
+        run: |
+          az config set extension.use_dynamic_install=yes_without_prompt
+          az containerapp update \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --image $IMAGE_TAG

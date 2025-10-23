@@ -129,3 +129,11 @@ code {
     padding: clamp(1rem, 0.8rem + 1vw, 2rem);
     border-bottom: 1px solid var(--brand-green-200);
 }
+
+/* Align hero horizontal padding with header on narrow containers */
+@container layout (max-width: 520px) {
+  .hero {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+  }
+}

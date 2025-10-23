@@ -1,0 +1,19 @@
+# VCS and editor
+.git
+.gitignore
+.gitattributes
+.vscode
+.idea
+*.swp
+*.swo
+
+# Local tooling
+.DS_Store
+Thumbs.db
+node_modules
+dist
+build
+
+# Codex / environment
+.codex
+back

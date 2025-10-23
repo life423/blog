@@ -1,5 +1,4 @@
 import { initDrawer } from './drawer.js'
-import { generateColorsCSS } from './generate-colors.js'
 import { generateSpacingScale } from './generate-spacing-scale.js'
 import { generateTypeScale } from './generate-type-scale.js'
 
@@ -16,7 +15,5 @@ generateSpacingScale({
     steps: { min: -2, max: 6 },
     name: 'space',
 })
-
-generateColorsCSS()
 
 initDrawer()

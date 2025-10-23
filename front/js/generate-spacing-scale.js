@@ -1,5 +1,3 @@
-const BREAKPOINT = 768;
-
 export function generateSpacingScale({
     basePx = 8,
     ratio = 1.5,

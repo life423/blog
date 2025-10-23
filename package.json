@@ -1,10 +1,19 @@
 {
   "name": "blog",
   "version": "1.0.0",
-  "description": "",
+  "description": "A modern, performance-focused blog application showcasing advanced CSS architecture and JavaScript-driven design systems.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/life423/blog.git"
+  },
+  "bugs": {
+    "url": "https://github.com/life423/blog/issues"
+  },
+  "homepage": "https://github.com/life423/blog#readme"
 }

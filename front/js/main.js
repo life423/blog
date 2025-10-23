@@ -2,7 +2,6 @@ import { initDrawer } from './drawer.js'
 import { generateColorsCSS } from './generate-colors.js'
 import { generateSpacingScale } from './generate-spacing-scale.js'
 import { generateTypeScale } from './generate-type-scale.js'
-import { initResponsiveLayout } from './responsive-layout.js'
 
 generateTypeScale({
     basePx: 16,
@@ -19,7 +18,5 @@ generateSpacingScale({
 })
 
 generateColorsCSS()
-
-initResponsiveLayout()
 
 initDrawer()

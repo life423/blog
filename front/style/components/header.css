@@ -16,6 +16,8 @@
     margin: 0;
 }
 
+.desktop-nav { display: none; }
+
 .desktop-nav a {
     color: var(--brand-green-300);
     padding: var(--space--1) var(--space-1);
@@ -40,6 +42,7 @@
 }
 
 .menu-toggle {
+    display: block; /* mobile-first default */
     background-color: transparent;
     color: var(--brand-green-400);
     border: none;
@@ -51,6 +54,8 @@
     position: static;
     margin-left: auto;
 }
+
+.close-icon { display: none; }
 
 .menu-toggle svg {
     fill: var(--brand-green-400);
@@ -81,4 +86,15 @@ body.no-scroll .menu-toggle {
     top: calc(var(--space-1) + env(safe-area-inset-top, 0));
     right: calc(var(--space-4) + env(safe-area-inset-right, 0));
     z-index: 1100;
+}
+
+/* Desktop state via container query on the page container */
+@container layout (min-width: 768px) {
+  .site-header .menu-toggle {
+    display: none;
+  }
+  .site-header .desktop-nav {
+    display: flex;
+    gap: var(--space-2);
+  }
 }

@@ -1,45 +1,8 @@
 
-.responsive-layout {
-    container-type: inline-size;
-}
+/* utility classes kept minimal; responsive behavior now handled via container queries */
 
-.menu-toggle {
-    display: block;
-}
-
-.close-icon{
-    display: none;
-}
-
-.show{
-    display: flex;
-
-}
-.hide{
-    display: none;
-}
-.desktop-nav {
-    display: none;
-}
-
-
-
-.layout-narrow .menu-toggle {
-    display: block;
-}
-
-.layout-narrow .desktop-nav {
-    display: none;
-}
-
-.layout-wide .menu-toggle {
-    display: none;
-}
-
-.layout-wide .desktop-nav {
-    display: flex;
-    gap: var(--space-2);
-}
+.show { display: flex; }
+.hide { display: none; }
 
 .post-grid {
     display: grid;

@@ -86,9 +86,13 @@ textarea {
     border-radius: 0;
 }
 
-:focus {
-    outline: 2px solid Highlight;
+:focus-visible {
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+    outline: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

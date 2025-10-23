@@ -39,7 +39,7 @@ body {
 .container {
     container-type: inline-size;
     width: min(100%, clamp(42rem, 80vw, 75rem));
-    padding-inline: clamp(0.75rem, 2vw, 2rem);
+    /* padding-inline: clamp(0.75rem, 2vw, 2rem); */
     margin-inline: auto;
     background-color: pink;
     height:100vh;

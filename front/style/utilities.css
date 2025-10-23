@@ -1,5 +1,5 @@
 .container {
-    width: min(100%, clamp(42rem, 80vw, 72rem));
+    width: min(100%, clamp(42rem, 80vw, 75rem));
     padding-inline: clamp(0.75rem, 2vw, 2rem);
     margin-inline: auto;
 }
@@ -27,17 +27,7 @@
     display: none;
 }
 
-/* Container queries (modern browsers) */
-@container (min-width: 768px) {
-    .menu-toggle {
-        display: none;
-    }
 
-    .desktop-nav {
-        display: flex;
-        gap: var(--space-2);
-    }
-}
 
 .layout-narrow .menu-toggle {
     display: block;

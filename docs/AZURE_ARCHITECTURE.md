@@ -124,3 +124,34 @@ Merge workflow protection: pull requests run application checks. Main builds pub
 only immutable commit-SHA image tags, never overwrite the live app's legacy `latest`
 tag. Missing production configuration produces an explicit successful preflight skip
 and job summary, rather than a partial rollout or intentionally failing the build.
+
+
+## Production settings applied — October 30, 2026
+
+The user subsequently authorized Azure CLI configuration. The Node c27fec7 image
+was deployed to the existing app as revision blogportfolio--node-c27fec7. Azure
+reported Succeeded and the revision ready. Ingress and image were changed together
+with JSON Merge Patch; the custom domain/certificate and registry settings were
+preserved. Managed identity, scoped storage roles, secret references, production
+flags, origin, 0.25 vCPU / 0.5 GiB and min/max replicas 0/2 are configured.
+
+The inherited GitHub Azure login failed because AZURE_CREDENTIALS was missing.
+A dedicated blog-github-deploy user-assigned identity now trusts only
+repo:life423/blog:ref:refs/heads/main via GitHub OIDC. It has Container Apps
+Contributor on blogportfolio only, plus Reader on its existing environment.
+Client/tenant/subscription IDs are repository variables, not password secrets.
+The empty legacy auto-deploy workflow was removed. CI uses azure/login with OIDC.
+
+Initial live health, secure-cookie login, authenticated access and private draft
+create/update succeeded. A malformed-version conflict response was found to be a
+500 in Azure; the follow-up checks version identity before storage operations,
+returning 409 while preserving ETag enforcement for races. The repeatable
+scripts/verify-production.js checks this together with private CRUD and media.
+Historical pre-release notes above describe the earlier checkpoint; this section
+supersedes their statements that production settings and deployment were pending.
+No sample article has been published. Real-device usability and field performance
+measurements remain separate follow-up work.
+
+References for the configuration:
+- https://learn.microsoft.com/en-us/rest/api/resource-manager/containerapps/container-apps/update?view=rest-resource-manager-containerapps-2025-07-01
+- https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-azure

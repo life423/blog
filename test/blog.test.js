@@ -43,6 +43,7 @@ test('Draft privacy, authentication, CSRF, publish/unpublish and optimistic conc
         let response = await save(draft)
         assert.equal(response.status, 200)
         const created = await response.json()
+        assert.equal((await save(draft, 'malformed-version')).status, 409)
         assert.equal((await fetch(`${origin}/articles/first-article`)).status, 404)
         assert.deepEqual((await (await fetch(`${origin}/api/posts`)).json()).posts, [])
         assert.equal((await save(draft)).status, 409)

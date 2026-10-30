@@ -125,3 +125,18 @@ between header and Articles, with an 88px image, explanatory text, visible desti
 A small orange segment now sits within the footer divider above Drew Clark, carrying
 the accent down the drawer without adding a competing separator. This supersedes
 notes placing the QR beside the close button or in the public page header.
+
+
+## Azure production rollout follow-up
+
+The user authorized Azure CLI configuration and deployment after the initial merge.
+The existing Container App now runs Node on HTTPS/8080 with managed storage access
+and secret-referenced admin configuration. GitHub built the container successfully,
+which supersedes the earlier local-Docker validation limit for that image (the local
+Docker daemon still was not used). Initial live authentication and private draft
+operations passed. The malformed-version 500 discovered during live validation was
+corrected with an explicit version check and a regression assertion. See the repeatable
+scripts/verify-production.js for post-deployment authentication, private CRUD, conflicts,
+CSRF, media and logout verification. Test objects use unique IDs and are cleaned up.
+GitHub's missing old Azure credential is replaced by scoped OIDC; the empty legacy
+workflow is removed. The live blog intentionally contains no sample posts.

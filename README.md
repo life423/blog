@@ -48,8 +48,8 @@ is already connected to drewblogdata.
 
 Read [the Azure architecture and release checklist](docs/AZURE_ARCHITECTURE.md).
 Azure Table Storage holds metadata; private Blob Storage holds article bodies and
-images. The new storage account is provisioned and smoke-tested. **The redesigned
-Node application is not deployed yet.** Existing live hosting remains unchanged.
+images. The storage account is provisioned and smoke-tested. **The Node application is deployed at https://blog.drewclark.io.** It uses the
+existing Container App and domain, with production storage and admin secrets configured.
 
 Production requires AZURE_STORAGE_ACCOUNT and a managed identity with scoped
 Table/Blob data roles. Store ADMIN_PASSWORD_HASH and ADMIN_SESSION_SECRET as
@@ -58,8 +58,9 @@ HTTP-only and SameSite Strict in production. Sign-in attempts are rate-limited.
 Microsoft Entra Easy Auth remains an optional alternative; never enable
 TRUST_AZURE_AUTH without that platform authentication sidecar.
 
-The container now runs Node rather than NGINX. The GitHub workflow runs checks and
-tests, and refuses the Node rollout if the Azure storage setting is missing.
+The container now runs Node rather than NGINX. The GitHub workflow runs checks and tests, publishes immutable image tags, and
+uses a blog-scoped OIDC managed identity for Azure deployment. Missing production
+settings cause an explicit deployment skip. No long-lived Azure login secret is needed.
 
 ```powershell
 npm run check
@@ -86,3 +87,14 @@ label. Choose actual text/background pairings by measured contrast.
 `back/views.js` owns reader HTML, `front/admin.html` the editor shell. The old
 `front/index.html` is retained for history but `/index.html` redirects to the
 server-rendered homepage. Use the Node server, not a static file server.
+
+
+## Production verification
+
+Production uses 0.25 vCPU / 0.5 GiB, scale-to-zero with max 2 replicas, HTTPS ingress
+on 8080 and HTTP startup/readiness checks on `/health`. Admin credentials match the
+private local handoff; only their hash and session secret are stored as Azure secrets.
+No design-preview stories are published automatically; the live journal starts empty.
+`node scripts/verify-production.js` explicitly tests live private CRUD and media,
+then removes only its uniquely named test objects. It needs the private handoff and
+an Azure CLI identity authorized to clean up those test records.

@@ -60,3 +60,11 @@ green/cyan/blue/orange palette progression, plus a JavaScript fallback. This rep
 the earlier article-body-only progress line; active article sections remain separate.
 The seven-stop adaptation intentionally differs from the portfolio's 26-stop HSL
 algorithm. Verify unsupported browsers and reduced motion before release.
+
+
+Shared-element phase implemented locally on codex/article-view-transitions:
+CSP-safe native document navigation pairs each card illustration with its hero.
+320ms geometry transition, static chrome, clean single-image rendering, ordinary
+links and reduced-motion/unsupported-browser fallback. Real desktop transition
+captured; phone keyboard navigation and tablet directory transition reviewed.
+Animated CUDA diagrams and sliding category indicators remain planned.

@@ -1,0 +1,32 @@
+/* Native same-origin document navigation: no fetch/router interception or delays. */
+@media (prefers-reduced-motion: no-preference) {
+    @supports (view-transition-name: attr(data-transition-name type(<custom-ident>), none)) {
+        @view-transition { navigation: auto; }
+        .art-frame {
+            view-transition-name: attr(data-transition-name type(<custom-ident>), none);
+            view-transition-class: story-art;
+        }
+    }
+    ::view-transition { pointer-events: none; }
+    ::view-transition-group(*) {
+        animation-duration: var(--duration-page);
+        animation-timing-function: var(--ease-standard);
+    }
+    /* Keep page chrome still; only matching story artwork travels between layouts. */
+    ::view-transition-group(root),
+    ::view-transition-old(root),
+    ::view-transition-new(root) { animation: none; }
+    ::view-transition-old(root) { display: none; }
+    /* Move one clean image instead of cross-fading two differently cropped copies. */
+    ::view-transition-old(.story-art) { display: none; }
+    ::view-transition-new(.story-art) {
+        animation: none; mix-blend-mode: normal;
+        width: 100%; height: 100%; object-fit: cover;
+    }
+    /* Do not leave unrelated card snapshots floating above the incoming article. */
+    ::view-transition-old(*):only-child { display: none; }
+    ::view-transition-new(*):only-child { animation: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
+}

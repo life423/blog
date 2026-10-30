@@ -369,3 +369,38 @@ Screenshot: ignored .azure-local/nav-hover-lines.jpg. Reduced-motion OS emulatio
 not performed; desktop-only selectors preserve mobile navigation. Not deployed.
 Internal review: feedback8/accessibility8/consistency9; follow up with real-device
 reduced-motion testing, without increasing decorative motion or changing layout.
+
+
+## Underline refinement and CUDA motion — October 30, 2026 (local)
+
+User rejected the prior green-to-orange keyframe underline as a blink. Supersedes
+that treatment: a continuous gradient moves across the underline over 900ms,
+with a separate 230ms left-to-right reveal. Leaving/re-entering transitions from
+the current position instead of restarting a color keyframe. Reduced motion uses
+static orange. Browser About hover sampled background-position 40.1352%, no
+keyframe animation; keyboard Portfolio retained a solid focus outline.
+
+CUDA uses trusted inline project SVG, scoped pattern IDs and the existing shared
+viewport observer. Trajectory and connecting paths draw, three nodes brighten in
+sequence, and a geometric cube follows the orange route. Sequence ends by 4.2s;
+no infinite loop. Fully leaving the viewport rearms it. Reduced motion/no observer
+keeps the completed diagram visible; unsupported motion-path retains the cube at
+the endpoint. This is illustrative artwork, labeled accordingly, not experiment
+telemetry. The CUDA slug has art-directed SVG in place of its static cover; other
+uploaded covers remain images and the original stored PNG is unchanged.
+
+Rendered checks: 1280x900 homepage and article, 768x1024 article, 390x844 article.
+No horizontal overflow on phone/tablet. Agent positions sampled at 0%, 87.4311%
+and 100%; endpoint aligned with the target at SVG coordinates 685,90. Paths sampled
+with nonzero dash offset during entry then zero; all nodes settled orange.
+Tablet scroll-out removed is-in-view, re-entry restored it and restarted drawing.
+Card-to-article navigation succeeded with the same story snapshot identity.
+Phone and tablet screenshots inspected; no OS reduced-motion or Safari/Firefox
+rendering test performed. Existing reduced-motion observer tests pass. All 15
+Node tests, syntax checks and git diff whitespace checks pass.
+
+Internal review heuristics: hierarchy9, consistency9, responsiveness9, feedback9,
+usability9, accessibility8, performance8. Remaining priorities: verify actual OS
+reduced-motion and motion-path fallback in Safari/Firefox, then profile animation
+on a lower-powered phone. Tiny SVG captions are decorative; the accessible SVG
+label carries the meaning. No measured Core Web Vitals claim. Not deployed.

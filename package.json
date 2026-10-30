@@ -6,7 +6,7 @@
     "dev": "node --env-file-if-exists=.env --watch back/index.js",
     "start": "node --env-file-if-exists=.env back/index.js",
     "test": "node --test",
-    "check": "node --check back/index.js && node --check back/storage.js && node --check back/views.js && node --check front/js/admin.js && node --check front/js/blog.js && node --check front/js/reading.js && node --check front/js/scroll-progress.js && node --check front/js/in-view-animation.js"
+    "check": "node --check back/index.js && node --check back/storage.js && node --check back/views.js && node --check back/cuda-illustration.js && node --check front/js/admin.js && node --check front/js/blog.js && node --check front/js/reading.js && node --check front/js/scroll-progress.js && node --check front/js/in-view-animation.js"
   },
   "author": "",
   "license": "ISC",

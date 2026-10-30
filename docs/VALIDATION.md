@@ -306,3 +306,47 @@ Review heuristics: usability8, hierarchy8, accessibility8, consistency9,
 responsiveness8, feedback8, performance6. Follow up with actual reduced-motion
 devices/screen readers and a performance trace; retain text labels and avoid
 expanding the effect to unrelated navigation.
+
+
+## Shared-element article transitions — October 30, 2026
+
+Local branch codex/article-view-transitions adds native cross-document transitions
+from homepage/directory card illustrations to article heroes. Each story gets a
+stable hex-encoded slug identifier, unique even when image URLs repeat. External
+CSS reads data-transition-name through typed attr(), respecting the existing CSP
+(no inline styles or weakened policy). Both pages opt in through @view-transition
+only when typed attr is supported and reduced motion is not requested.
+
+Artwork travels for320ms using shared timing tokens; page chrome does not animate.
+One clean incoming image replaces the double-image crossfade; unrelated outgoing
+snapshots are hidden. Links, Back, direct loads and modifier/new-tab navigation stay
+native: no router interception, fetch, timers, added JavaScript or dependencies.
+Admin does not opt in. Browsers without both cross-document transitions and typed
+attr retain ordinary navigation. Reduced motion explicitly disables navigation
+transitions. References: MDN View Transition API/Using and CSS/Reference/Values/attr.
+
+Browser verification in IAB: three distinct computed names on homepage/directory;
+hero name matches source. Captured actual mid-flight card-to-CUDA-hero image at
+1280×900 (screenshots/shared-element-desktop.jpg), then verified clean settled page.
+Phone390×844 keyboard Enter opens the correct article without document overflow.
+Tablet820×1180 directory-to-DevOps transition was captured during flight; Back
+returns to the directory. Initial tests exposed blocked inline styling, duplicate
+image crossfade and floating unrelated snapshots; corrected before final review.
+
+All13 Node tests pass, including unique names across home/directory/detail and
+CSS-safe stable identifiers independent of cover URLs. Syntax/diff checks pass.
+Non-supporting browser and OS reduced-motion rendering are not independently
+emulated; fallbacks verified in source. No screen-reader or performance-trace
+claims. Transition coverage on physically notched devices and slow uncached media
+remains follow-up work. No production articles were added; this pass is local.
+
+Review heuristics: usability8, hierarchy8, accessibility8, consistency9,
+responsiveness8, feedback8, performance6. Priorities: real-device reduced-motion
+and unsupported-browser checks, then slow-image/performance tracing. Keep this
+brief enhancement rather than adding blocking loaders or artificial delays.
+
+Earlier foundation/motion/scroll/navbar/social changes were deployed via PR5 and
+cache-refresh PR6. Main0f79f03 deployed successfully; production authentication,
+private CRUD/privacy/conflicts/CSRF/media/logout checks passed after credential
+configuration. Normal live reload confirmed sticky header and footer pulse delays.
+That deployment is separate from the new local shared-element pass.

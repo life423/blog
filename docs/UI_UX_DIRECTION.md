@@ -202,3 +202,11 @@ between header and Articles, with an 88px image, explanatory text, visible desti
 A small orange segment now sits within the footer divider above Drew Clark, carrying
 the accent down the drawer without adding a competing separator. This supersedes
 notes placing the QR beside the close button or in the public page header.
+
+
+### October 30 motion refinement
+User rejected the original navbar color pulse as blinking. Use a continuous
+gradient sweep with a separate underline reveal, never repeated color pulses.
+CUDA artwork now uses a brief illustrative path/node/cube sequence on viewport
+entry, with static reduced-motion fallback. Preserve geometric artwork and shared
+card/hero identity. See VALIDATION.md for local evidence and remaining checks.

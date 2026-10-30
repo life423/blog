@@ -1,0 +1,26 @@
+.art-frame .cuda-illustration { display: block; width: 100%; height: auto; aspect-ratio: 2; }
+.cuda-agent { fill: var(--brand-green-900); stroke: var(--brand-orange-500); stroke-width: 2.5; }
+@supports (offset-path: path('M0 0L1 1')) {
+    .cuda-agent {
+        transform: none;
+        offset-path: path('M90 320C180 315 180 185 280 185S420 210 490 145 610 115 685 90');
+        offset-distance: 100%; offset-rotate: auto;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+        .is-in-view .cuda-agent { animation: cuda-travel 3s cubic-bezier(.4, 0, .2, 1) 1.2s both; }
+        @keyframes cuda-travel { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+    }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .is-in-view .cuda-route { animation: cuda-draw 1.4s var(--ease-standard) both; }
+    .is-in-view .cuda-trace { animation: cuda-draw 1.2s var(--ease-standard) .2s both; }
+    .is-in-view .cuda-node { animation: cuda-node-light .6s ease-out 2s both; }
+    .is-in-view .cuda-node--second { animation-delay: 2.9s; }
+    .is-in-view .cuda-node--target { animation-delay: 3.6s; }
+    @keyframes cuda-draw { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+    @keyframes cuda-node-light {
+        from { fill: var(--brand-green-700); opacity: .35; }
+        65% { fill: var(--brand-orange-300); opacity: 1; }
+        to { fill: var(--brand-orange-500); opacity: 1; }
+    }
+}

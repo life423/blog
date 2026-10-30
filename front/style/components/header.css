@@ -58,8 +58,8 @@
     border-radius: clamp(0.25rem, 0.2rem + 0.2vw, 0.5rem);
     padding: var(--space--1, 0.5rem);
     cursor: pointer;
-    inline-size: calc(var(--header-height) - 2 * var(--space-1, 0.75rem));
-    block-size: calc(var(--header-height) - 2 * var(--space-1, 0.75rem));
+    inline-size: max(44px, calc(var(--header-height) - 2 * var(--space-1, 0.75rem)));
+    block-size: max(44px, calc(var(--header-height) - 2 * var(--space-1, 0.75rem)));
     display: grid;
     place-items: center;
     line-height: 0;
@@ -92,13 +92,6 @@
 
 .menu-toggle:active {
     transform: scale(0.96);
-}
-
-body.no-scroll .menu-toggle {
-    position: fixed;
-    top: calc(var(--space-1) + env(safe-area-inset-top, 0));
-    right: calc(var(--space-4) + env(safe-area-inset-right, 0));
-    z-index: 1100;
 }
 
 /* Desktop state via container query on the page container */

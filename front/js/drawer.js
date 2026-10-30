@@ -1,70 +1,80 @@
-// Drawer navigation functionality
+// The overlay siblings live directly under body, outside the layout container.
 export function initDrawer() {
     const toggle = document.querySelector('.menu-toggle')
     const drawer = document.querySelector('.drawer')
-    const menuIcon = toggle?.querySelector('.menu-icon')
-    const closeIcon = toggle?.querySelector('.close-icon')
+    const backdrop = document.querySelector('.drawer-backdrop')
+    const close = drawer?.querySelector('.drawer-close')
+    const page = document.querySelector('.container')
+    if (!toggle || !drawer || !backdrop || !close || !page) return
 
-    if (!toggle || !drawer || !menuIcon || !closeIcon) return
-
-    // Link control relationships for a11y without changing markup
-    toggle.setAttribute('aria-controls', drawer.id || 'nav-drawer')
-    toggle.setAttribute('aria-expanded', 'false')
-    drawer.setAttribute('aria-hidden', 'true')
-
-    const toggleIcons = (isOpen) => {
-        menuIcon.style.display = isOpen ? 'none' : 'block'
-        closeIcon.style.display = isOpen ? 'block' : 'none'
+    let open = false
+    let previousInert = page.inert
+    const updateCurrentLink = () => {
+        for (const link of drawer.querySelectorAll('nav a')) {
+            const target = new URL(link.href)
+            const internal = target.origin === location.origin
+            const articles = internal && target.pathname === '/articles' && (location.pathname.startsWith('/articles') || location.pathname === '/' && location.hash !== '#about')
+            const about = internal && target.hash === '#about' && location.pathname === '/' && location.hash === '#about'
+            if (articles || about) link.setAttribute('aria-current', target.pathname === location.pathname && !target.hash ? 'page' : 'location')
+            else link.removeAttribute('aria-current')
+        }
     }
-
-    const setOpenState = (isOpen) => {
-        drawer.classList.toggle('open', isOpen)
-        drawer.setAttribute('aria-hidden', String(!isOpen))
-        toggle.setAttribute('aria-expanded', String(isOpen))
-        toggleIcons(isOpen)
-        document.body.classList.toggle('no-scroll', isOpen)
-        if (isOpen) {
-            // Focus first interactive element in drawer
-            const firstLink = drawer.querySelector('a, button, [tabindex]:not([tabindex="-1"])')
-            firstLink?.focus()
+    updateCurrentLink()
+    window.addEventListener('hashchange', updateCurrentLink)
+    const focusables = () => [...drawer.querySelectorAll('a[href], button:not(:disabled)')]
+    const setOpen = (next, restoreFocus = true) => {
+        if (next === open) return
+        open = next
+        if (open) previousInert = page.inert
+        drawer.inert = !open
+        drawer.classList.toggle('open', open)
+        backdrop.classList.toggle('open', open)
+        toggle.setAttribute('aria-expanded', String(open))
+        document.documentElement.classList.toggle('drawer-open', open)
+        if (open) {
+            page.inert = true
+            drawer.removeAttribute('aria-hidden')
+            // Let the trigger's click finish before focusing the dialog.
+            setTimeout(() => {
+                if (open) close.focus({ preventScroll: true })
+            }, 0)
         } else {
-            // Return focus to the toggle for logical focus order
-            toggle.focus()
+            page.inert = previousInert
+            // Move focus before hiding the dialog from assistive technology.
+            if (restoreFocus) toggle.focus({ preventScroll: true })
+            else if (drawer.contains(document.activeElement)) {
+                page.querySelector('.desktop-nav a')?.focus({ preventScroll: true })
+            }
+            drawer.setAttribute('aria-hidden', 'true')
         }
     }
 
-    toggle.addEventListener('click', () => {
-        const isOpen = !drawer.classList.contains('open')
-        setOpenState(isOpen)
+    toggle.addEventListener('click', () => setOpen(!open))
+    close.addEventListener('click', () => setOpen(false))
+    backdrop.addEventListener('click', () => setOpen(false))
+    drawer.addEventListener('click', event => {
+        if (event.target.closest('a[href]')) setOpen(false)
     })
-
-    // Close drawer when clicking outside
-    document.addEventListener('click', e => {
-        if (!drawer.contains(e.target) && !toggle.contains(e.target)) {
-            if (drawer.classList.contains('open')) setOpenState(false)
-        }
-    })
-
-    // Close on Escape key and trap focus within drawer when open
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && drawer.classList.contains('open')) {
-            e.preventDefault()
-            setOpenState(false)
-            return
-        }
-        if (e.key === 'Tab' && drawer.classList.contains('open')) {
-            const focusables = drawer.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])')
-            if (focusables.length === 0) return
-            const first = focusables[0]
-            const last = focusables[focusables.length - 1]
-            const active = document.activeElement
-            if (e.shiftKey && active === first) {
-                e.preventDefault()
+    document.addEventListener('keydown', event => {
+        if (!open) return
+        if (event.key === 'Escape') {
+            event.preventDefault()
+            setOpen(false)
+        } else if (event.key === 'Tab') {
+            const items = focusables()
+            const first = items[0] || drawer
+            const last = items.at(-1) || drawer
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault()
                 last.focus()
-            } else if (!e.shiftKey && active === last) {
-                e.preventDefault()
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault()
                 first.focus()
             }
         }
     })
+    // Match the actual container-query visibility rather than a second breakpoint.
+    new ResizeObserver(() => {
+        if (open && getComputedStyle(toggle).display === 'none') setOpen(false, false)
+    }).observe(page)
 }

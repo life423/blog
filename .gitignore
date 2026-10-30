@@ -49,3 +49,6 @@ temp/
 
 # Amazon Q configuration and memory bank
 .amazonq/
+# Local blog drafts and cloud CLI scratch files
+.data/
+.azure-local/

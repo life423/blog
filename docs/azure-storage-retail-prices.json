@@ -1,0 +1,152 @@
+{
+  "checked": "2026-10-30",
+  "region": "eastus2",
+  "currency": "USD",
+  "source": "https://prices.azure.com/api/retail/prices",
+  "meters": [
+    {
+      "productName": "Tables",
+      "skuName": "Standard LRS",
+      "meterName": "List Operations",
+      "retailPrice": 0.00036,
+      "unitOfMeasure": "10K",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2016-04-11T00:00:00Z"
+    },
+    {
+      "productName": "Tables",
+      "skuName": "Standard LRS",
+      "meterName": "Scan Operations",
+      "retailPrice": 0.00036,
+      "unitOfMeasure": "10K",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2016-04-11T00:00:00Z"
+    },
+    {
+      "productName": "Tables",
+      "skuName": "Standard LRS",
+      "meterName": "Read Operations",
+      "retailPrice": 0.00036,
+      "unitOfMeasure": "10K",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2016-04-11T00:00:00Z"
+    },
+    {
+      "productName": "Tables",
+      "skuName": "Standard LRS",
+      "meterName": "Delete Operations",
+      "retailPrice": 0.00036,
+      "unitOfMeasure": "10K",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2016-04-11T00:00:00Z"
+    },
+    {
+      "productName": "Tables",
+      "skuName": "Standard LRS",
+      "meterName": "Batch Write Operations",
+      "retailPrice": 0.00036,
+      "unitOfMeasure": "10K",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2016-04-11T00:00:00Z"
+    },
+    {
+      "productName": "Tables",
+      "skuName": "Standard LRS",
+      "meterName": "Write Operations",
+      "retailPrice": 0.00036,
+      "unitOfMeasure": "10K",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2016-04-11T00:00:00Z"
+    },
+    {
+      "productName": "Tables",
+      "skuName": "Standard LRS",
+      "meterName": "LRS Data Stored",
+      "retailPrice": 0.045,
+      "unitOfMeasure": "1 GB/Month",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2019-06-01T00:00:00Z"
+    },
+    {
+      "productName": "General Block Blob v2",
+      "skuName": "Hot LRS",
+      "meterName": "LRS List and Create Container Operations",
+      "retailPrice": 0.05,
+      "unitOfMeasure": "10K",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2016-05-09T00:00:00Z"
+    },
+    {
+      "productName": "General Block Blob v2",
+      "skuName": "Hot LRS",
+      "meterName": "Hot LRS Blob Inventory",
+      "retailPrice": 0.0025,
+      "unitOfMeasure": "1M",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2021-10-01T00:00:00Z"
+    },
+    {
+      "productName": "General Block Blob v2",
+      "skuName": "Hot LRS",
+      "meterName": "Hot LRS Data Stored",
+      "retailPrice": 0.0184,
+      "unitOfMeasure": "1 GB/Month",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2017-02-03T00:00:00Z"
+    },
+    {
+      "productName": "General Block Blob v2",
+      "skuName": "Hot LRS",
+      "meterName": "Hot LRS Data Stored",
+      "retailPrice": 0.017664,
+      "unitOfMeasure": "1 GB/Month",
+      "tierMinimumUnits": 51200.0,
+      "effectiveStartDate": "2017-02-03T00:00:00Z"
+    },
+    {
+      "productName": "General Block Blob v2",
+      "skuName": "Hot LRS",
+      "meterName": "Hot LRS Data Stored",
+      "retailPrice": 0.016928,
+      "unitOfMeasure": "1 GB/Month",
+      "tierMinimumUnits": 512000.0,
+      "effectiveStartDate": "2017-02-03T00:00:00Z"
+    },
+    {
+      "productName": "General Block Blob v2",
+      "skuName": "Hot LRS",
+      "meterName": "Index Tags",
+      "retailPrice": 0.03,
+      "unitOfMeasure": "10K/Month",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2021-02-01T00:00:00Z"
+    },
+    {
+      "productName": "General Block Blob v2",
+      "skuName": "Hot LRS",
+      "meterName": "Hot LRS Write Operations",
+      "retailPrice": 0.05,
+      "unitOfMeasure": "10K",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2016-05-09T00:00:00Z"
+    },
+    {
+      "productName": "General Block Blob v2",
+      "skuName": "Hot LRS",
+      "meterName": "Hot Read Operations",
+      "retailPrice": 0.004,
+      "unitOfMeasure": "10K",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2016-05-09T00:00:00Z"
+    },
+    {
+      "productName": "General Block Blob v2",
+      "skuName": "Hot LRS",
+      "meterName": "All Other Operations",
+      "retailPrice": 0.004,
+      "unitOfMeasure": "10K",
+      "tierMinimumUnits": 0.0,
+      "effectiveStartDate": "2017-10-01T00:00:00Z"
+    }
+  ]
+}

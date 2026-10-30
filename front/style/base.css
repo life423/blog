@@ -52,7 +52,7 @@ body {
     color: var(--text-surface);
 }
 
-body.no-scroll {
+html.drawer-open {
     overflow: hidden;
 }
 

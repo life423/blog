@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "A modern, performance-focused blog application showcasing advanced CSS architecture and JavaScript-driven design systems.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --env-file-if-exists=.env --watch back/index.js",
+    "start": "node --env-file-if-exists=.env back/index.js",
+    "test": "node --test",
+    "check": "node --check back/index.js && node --check back/storage.js && node --check back/views.js && node --check front/js/admin.js && node --check front/js/blog.js"
   },
   "author": "",
   "license": "ISC",
-  "main": "index.js",
+  "main": "back/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/life423/blog.git"
@@ -15,5 +18,21 @@
   "bugs": {
     "url": "https://github.com/life423/blog/issues"
   },
-  "homepage": "https://github.com/life423/blog#readme"
+  "homepage": "https://github.com/life423/blog#readme",
+  "dependencies": {
+    "@azure/data-tables": "^13.3.2",
+    "@azure/identity": "^4.14.1",
+    "@azure/storage-blob": "^12.34.0",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.2",
+    "helmet": "^8.3.0",
+    "marked": "^18.1.2",
+    "multer": "^2.5.0",
+    "sanitize-html": "^2.18.1"
+  },
+  "type": "module",
+  "devDependencies": {
+    "jsqr": "^1.4.0",
+    "qrcode": "^1.5.4"
+  }
 }

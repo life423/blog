@@ -1,77 +1,88 @@
-# Beyond the Stack - Dynamic Design System Blog
+# Beyond the Stack
 
-A modern, performance-focused blog application showcasing advanced CSS architecture and JavaScript-driven design systems.
+Drew Clark's engineering journal: **Full Stack Web Development**, DevOps, and
+learning with AI. Node.js 22 + Express serve the reader pages and admin API.
 
-## 🌟 Key Features
+## Run locally
 
-### Dynamic Design System
-- **Modular Typography Scale**: JavaScript-generated type scales with responsive ratios
-- **Fluid Spacing System**: Mathematical spacing scales that adapt across breakpoints  
-- **Brand Color System**: Comprehensive color palettes with CSS custom properties
-- **Responsive Layout Engine**: Container-query-like behavior with ResizeObserver
-
-### Modern Architecture
-- **ES6 Modules**: Clean, maintainable JavaScript architecture
-- **Progressive Enhancement**: Graceful fallbacks for older browsers
-- **Performance Optimized**: Dynamic CSS injection with minimal DOM overhead
-- **Accessibility First**: WCAG compliant with proper focus management
-
-## 🛠 Technical Highlights
-
-- **No Build Tools Required**: Vanilla JavaScript with modern browser APIs
-- **CSS Custom Properties**: Dynamic theming system
-- **Mobile-First Responsive**: Adaptive navigation and typography
-- **Zero Dependencies**: Pure JavaScript implementation
-
-## CI/CD and Containerization
-
-This repo includes a production-ready container and Azure Web App deployment workflow.
-
-- Docker
-  - Build: `docker build -t blog-frontend:local .`
-  - Run: `docker run -p 8080:80 blog-frontend:local` and open http://localhost:8080
-  - Image serves the `front/` folder via NGINX with SPA-friendly routing and static caching.
-
-- GitHub Actions → Azure Web App for Containers
-  - Workflow: `.github/workflows/azure-webapp-container.yml`
-  - Required Azure resources (create once):
-    - Azure Container Registry (ACR)
-    - Azure Web App (Linux) configured for container images
-  - Required GitHub secrets:
-    - `AZURE_CREDENTIALS` — JSON from an Azure AD app/service principal with push + deploy permissions
-    - `ACR_LOGIN_SERVER` — e.g., `myregistry.azurecr.io`
-    - `ACR_USERNAME`, `ACR_PASSWORD` — ACR credentials (or use ACR admin user)
-    - `WEBAPP_NAME` — Azure Web App name
-    - `WEBAPP_RESOURCE_GROUP` — Resource group containing the Web App
-  - On push to `main`, the workflow builds the Docker image, pushes to ACR, and deploys the new image to the Web App.
-
-### Quick Azure CLI setup (example)
-
-```bash
-SUBSCRIPTION_ID=<sub-id>
-RG=blog-rg
-LOCATION=westeurope
-ACR_NAME=myblogregistry   # must be globally unique
-WEBAPP_NAME=my-blog-webapp
-PLAN=blog-plan
-
-az group create -n $RG -l $LOCATION
-az acr create -n $ACR_NAME -g $RG --sku Basic --admin-enabled true
-az appservice plan create -n $PLAN -g $RG --is-linux --sku B1
-az webapp create -n $WEBAPP_NAME -g $RG -p $PLAN --runtime 'NODE|18-lts' # runtime placeholder; image is set by CI
-
-# Service principal for GitHub Actions (Contributor on RG)
-az ad sp create-for-rbac \
-  --name blog-gha-deployer \
-  --role contributor \
-  --scopes "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RG" \
-  --sdk-auth > azure_credentials.json
-
-echo "Add these GitHub secrets:"
-echo "AZURE_CREDENTIALS=$(cat azure_credentials.json)"
-echo "ACR_LOGIN_SERVER=$(az acr show -n $ACR_NAME -g $RG --query loginServer -o tsv)"
-echo "ACR_USERNAME=$(az acr credential show -n $ACR_NAME -g $RG --query username -o tsv)"
-echo "ACR_PASSWORD=$(az acr credential show -n $ACR_NAME -g $RG --query 'passwords[0].value' -o tsv)"
-echo "WEBAPP_NAME=$WEBAPP_NAME"
-echo "WEBAPP_RESOURCE_GROUP=$RG"
+```powershell
+npm ci
+Copy-Item .env.example .env
+node scripts/setup-admin.js
+npm run dev
 ```
+
+Open http://127.0.0.1:3188/ and http://127.0.0.1:3188/admin.
+The admin has a real username/password login. Setup creates a salted scrypt hash
+and a strong session secret in ignored `.env`; the generated initial credentials
+are handed off privately in ignored `.azure-local/admin-login.txt`. Save the password
+in your password manager and remove that handoff file afterward. The UI supports
+password-manager autocomplete. No plaintext password is stored in application config.
+Design-preview articles are labeled samples and never inserted into Azure automatically.
+
+Without AZURE_STORAGE_ACCOUNT, development drafts persist in ignored
+`.data/posts.json`. To use Azure, sign in with `az login`, add
+`AZURE_STORAGE_ACCOUNT=drewblogdata` to `.env`, and restart the server. The Azure
+SDK uses your CLI identity locally and managed identity in production; no storage
+connection strings or account keys are used. The current machine's ignored `.env`
+is already connected to drewblogdata.
+
+## Implemented
+
+- Server-rendered homepage, article directory, topic navigation and article pages.
+- Approved green/orange/blue/gray palette; clipped feature artwork corner with
+  orange edge, orange featured marks and article insight callouts.
+- Root-level modal drawer: backdrop layer 60, drawer layer 70, dynamic viewport
+  height, independent scrolling, page scroll lock, inert background, focus
+  containment/return, Escape/backdrop/link dismissal and desktop resize cleanup.
+- Mobile-only drawer-header QR code for https://blog.drewclark.io, generated locally
+  and independently decoded. Drawer links start directly below the compact header.
+- Drawer hover/focus text glide and orange marker; touch press feedback; reduced
+  motion support. Drawer links are mint on evergreen, not global blue links.
+- Markdown editor, explicit draft saves, publish/update, unpublish, recoverable trash and restore, private preview,
+  unsaved-change protection, upload feedback and stale-save conflict rejection.
+- Sanitized article HTML and CSRF checks on writes. Cover upload accepts PNG/JPEG/
+  WebP up to 5 MB; blobs remain private and images are served by the Node API.
+
+## Storage and deployment
+
+Read [the Azure architecture and release checklist](docs/AZURE_ARCHITECTURE.md).
+Azure Table Storage holds metadata; private Blob Storage holds article bodies and
+images. The new storage account is provisioned and smoke-tested. **The redesigned
+Node application is not deployed yet.** Existing live hosting remains unchanged.
+
+Production requires AZURE_STORAGE_ACCOUNT and a managed identity with scoped
+Table/Blob data roles. Store ADMIN_PASSWORD_HASH and ADMIN_SESSION_SECRET as
+Container App secrets; set ADMIN_USERNAME and PUBLIC_ORIGIN. Cookies are secure,
+HTTP-only and SameSite Strict in production. Sign-in attempts are rate-limited.
+Microsoft Entra Easy Auth remains an optional alternative; never enable
+TRUST_AZURE_AUTH without that platform authentication sidecar.
+
+The container now runs Node rather than NGINX. The GitHub workflow runs checks and
+tests, and refuses the Node rollout if the Azure storage setting is missing.
+
+```powershell
+npm run check
+npm test
+# Explicit cloud write/read/conflict/media smoke test with cleanup:
+$env:AZURE_STORAGE_ACCOUNT='drewblogdata'
+node scripts/verify-storage.js
+```
+
+## Design decisions
+
+Use the exact green, orange, blue and gray scales in `front/js/colors.js` and
+`front/style/colors.css` for reader and admin UI. All 42 values match, including
+green 350 (#51DDA8) and 950 (#015338). Green 950 is lighter than 900 despite its
+label. Choose actual text/background pairings by measured contrast.
+
+- Green: navigation and primary actions. Orange: selective editorial emphasis.
+- Blue: reading links. Gray: reading surfaces, text and rules.
+- Preserve the approved geometric simulation art direction; no organic
+  tadpole/sperm-like hero illustrations.
+- Research and motion/clip-path decisions: [UI_UX_DIRECTION.md](docs/UI_UX_DIRECTION.md).
+- Verification evidence and remaining work: [VALIDATION.md](docs/VALIDATION.md).
+
+`back/views.js` owns reader HTML, `front/admin.html` the editor shell. The old
+`front/index.html` is retained for history but `/index.html` redirects to the
+server-rendered homepage. Use the Node server, not a static file server.

@@ -3,6 +3,8 @@ name: Build and Deploy Container App
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -11,7 +13,27 @@ env:
   AZURE_RESOURCE_GROUP: portfolio-apps
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify application
+        run: |
+          npm ci
+          npm run check
+          npm test
+
   build:
+    if: github.event_name != 'pull_request'
+    needs: check
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,10 +54,6 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_REPOSITORY }}:${{ github.sha }}
-            ${{ env.DOCKER_REPOSITORY }}:latest
-
-      - name: Share image tag
-        run: echo "IMAGE_TAG=${{ env.DOCKER_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_ENV
 
   deploy:
     runs-on: ubuntu-latest
@@ -49,12 +67,29 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Check production configuration
+        id: preflight
+        run: |
+          az config set extension.use_dynamic_install=yes_without_prompt
+          STORAGE=$(az containerapp show --name "$CONTAINER_APP_NAME" --resource-group "$AZURE_RESOURCE_GROUP" --query "properties.template.containers[0].env[?name=='AZURE_STORAGE_ACCOUNT'].value | [0]" -o tsv)
+          PORT=$(az containerapp show --name "$CONTAINER_APP_NAME" --resource-group "$AZURE_RESOURCE_GROUP" --query 'properties.configuration.ingress.targetPort' -o tsv)
+          HASH_REF=$(az containerapp show --name "$CONTAINER_APP_NAME" --resource-group "$AZURE_RESOURCE_GROUP" --query "properties.template.containers[0].env[?name=='ADMIN_PASSWORD_HASH'].secretRef | [0]" -o tsv)
+          SESSION_REF=$(az containerapp show --name "$CONTAINER_APP_NAME" --resource-group "$AZURE_RESOURCE_GROUP" --query "properties.template.containers[0].env[?name=='ADMIN_SESSION_SECRET'].secretRef | [0]" -o tsv)
+          if [ -z "$STORAGE" ] || [ "$PORT" != '8080' ] || [ -z "$HASH_REF" ] || [ -z "$SESSION_REF" ]; then
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::Deployment skipped: configure storage, managed identity, administrator secrets, and Node ingress port before rollout.'
+            echo '### Deployment skipped' >> "$GITHUB_STEP_SUMMARY"
+            echo 'The immutable image was built, but the live revision was not changed. Production storage, administrator secrets, and ingress port 8080 must be configured before rollout.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+
       - name: Update Container App revision
+        if: steps.preflight.outputs.ready == 'true'
         env:
           IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}:${{ github.sha }}
         run: |
-          az config set extension.use_dynamic_install=yes_without_prompt
           az containerapp update \
-            --name ${{ env.CONTAINER_APP_NAME }} \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --image $IMAGE_TAG
+            --name "$CONTAINER_APP_NAME" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --image "$IMAGE_TAG"

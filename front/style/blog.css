@@ -32,8 +32,23 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .wordmark-dot { color: var(--accent); }
 .no-js-nav { display: none; }
 .desktop-nav { display: flex; align-items: center; gap: 28px; }
-.desktop-nav a { color: white; text-decoration: none; font-size: .875rem; padding-block: 12px; border-bottom: 2px solid transparent; transition: border-color 150ms; }
-.desktop-nav a:hover { border-color: var(--brand-green-300); }
+.desktop-nav a { position: relative; color: white; text-decoration: none; font-size: .875rem; padding-block: 12px; border-bottom: 2px solid transparent; }
+.desktop-nav a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 4px; height: 2px; background: var(--brand-orange-500); transform: scaleX(0); transform-origin: left; pointer-events: none; transition: transform var(--duration-enter) var(--ease-out); }
+.desktop-nav a:focus-visible::after { transform: scaleX(1); }
+@media (hover: hover) { .desktop-nav a:hover::after { transform: scaleX(1); } }
+@media (prefers-reduced-motion: no-preference) {
+    .desktop-nav a:focus-visible::after { animation: nav-line-colors var(--duration-nav-line) linear both; }
+    @media (hover: hover) { .desktop-nav a:hover::after { animation: nav-line-colors var(--duration-nav-line) linear both; } }
+    @keyframes nav-line-colors {
+        0% { background: var(--brand-green-500); }
+        24% { background: var(--brand-green-350); }
+        40% { background: rgb(75 205 205); }
+        56% { background: var(--brand-blue-500); }
+        68% { background: var(--brand-blue-700); }
+        84% { background: var(--brand-orange-200); }
+        100% { background: var(--brand-orange-500); }
+    }
+}
 .site-header :focus-visible { outline-color: var(--brand-green-300); }
 .menu-toggle { display: none; align-items: center; justify-content: center; width: 44px; height: 44px; flex: 0 0 44px; color: white; background: transparent; border: 0; border-radius: var(--radius-small); }
 .preview-note { padding: 8px 24px; background: var(--brand-orange-50); color: var(--brand-orange-800); text-align: center; font-size: .75rem; }

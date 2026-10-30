@@ -350,3 +350,22 @@ cache-refresh PR6. Main0f79f03 deployed successfully; production authentication,
 private CRUD/privacy/conflicts/CSRF/media/logout checks passed after credential
 configuration. Normal live reload confirmed sticky header and footer pulse delays.
 That deployment is separate from the new local shared-element pass.
+
+
+## Sliding desktop nav underlines — October 30, 2026
+
+Local codex/nav-color-underlines: replaced hover border with a 2px pseudo-element
+underline. It expands left-to-right over230ms and passes once through the same
+green/mint/cyan/blue/orange anchors as page progress over600ms, holding orange
+until hover/focus ends. Keyboard focus has identical feedback and retains its
+outline. Hover is gated to hover-capable pointers; reduced motion shows a static
+orange underline. No JavaScript, changed targets or layout-property animation.
+
+At1280×900, actual About hover matched :hover, animation nav-line-colors/.6s,
+intermediate rgb(79,215,182), and nearly expanded scale. Settled state equals
+scale1 and rgb(255,107,0). Tab to Portfolio activates the same animation with
+a solid focus outline. Syntax and diff checks pass; no backend code changed.
+Screenshot: ignored .azure-local/nav-hover-lines.jpg. Reduced-motion OS emulation
+not performed; desktop-only selectors preserve mobile navigation. Not deployed.
+Internal review: feedback8/accessibility8/consistency9; follow up with real-device
+reduced-motion testing, without increasing decorative motion or changing layout.

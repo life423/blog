@@ -1,5 +1,17 @@
 import { initDrawer } from './drawer.js'
+import { initReading } from './reading.js'
+import { initScrollProgress } from './scroll-progress.js'
+import { initInViewAnimation } from './in-view-animation.js'
 initDrawer()
+initReading()
+initScrollProgress()
+initInViewAnimation()
+document.documentElement.classList.add('js')
+
+for (const rail of document.querySelectorAll('.topic-nav')) {
+    const selected = rail.querySelector('[aria-current]')
+    if (selected) rail.scrollLeft = Math.max(0, selected.offsetLeft - rail.offsetLeft - 8)
+}
 
 for (const pre of document.querySelectorAll('.prose pre')) {
     const wrapper = document.createElement('div')

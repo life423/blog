@@ -132,7 +132,8 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
     })
     const front = fileURLToPath(new URL('../front/', import.meta.url))
     app.get('/admin', (_req, res) => res.set('Cache-Control', 'no-store').sendFile(resolve(front, 'admin.html')))
-    app.use(express.static(front, { index: false, dotfiles: 'deny', maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0 }))
+    // Unfingerprinted asset URLs must revalidate after deployments.
+    app.use(express.static(front, { index: false, dotfiles: 'deny', maxAge: 0 }))
     app.use((_req, res) => res.status(404).send(shell('<section class="content-width empty-state"><h1>Nothing here yet.</h1><a class="read-link" href="/">Back to the journal →</a></section>')))
     app.use((error, req, res, _next) => {
         const status = error.status || (error.code === 'LIMIT_FILE_SIZE' ? 413 : 500)

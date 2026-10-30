@@ -31,6 +31,10 @@ test('Draft privacy, authentication, CSRF, publish/unpublish and optimistic conc
     const origin = `http://127.0.0.1:${server.address().port}`
     const headers = { origin, 'x-blog-request': '1', 'Content-Type': 'application/json' }
     try {
+        const stylesheet = await fetch(`${origin}/style/blog.css?v=20261030-editorial`)
+        assert.equal(stylesheet.status, 200)
+        assert.match(stylesheet.headers.get('cache-control'), /max-age=0/)
+        assert.ok(stylesheet.headers.get('etag'))
         assert.equal((await fetch(`${origin}/api/admin/posts`)).status, 401)
         assert.equal((await fetch(`${origin}/api/admin/login`, { method: 'POST' })).status, 403)
         assert.equal((await fetch(`${origin}/api/admin/login`, { method: 'POST', headers: { ...headers, origin: 'https://attacker.example' } })).status, 403)

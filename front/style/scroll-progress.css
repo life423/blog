@@ -1,0 +1,23 @@
+.scroll-progress {
+    position: fixed; inset: calc(var(--height-header) + env(safe-area-inset-top, 0px)) 0 auto; height: 3px; z-index: 50;
+    pointer-events: none; background: var(--brand-green-500);
+    transform: scaleX(0); transform-origin: left;
+}
+html.drawer-open .scroll-progress { visibility: hidden; }
+@supports (animation-timeline: scroll(root block)) {
+    .scroll-progress {
+        animation: page-progress linear both;
+        animation-timeline: scroll(root block);
+    }
+    @keyframes page-progress {
+        0% { transform: scaleX(0); background-color: var(--brand-green-500); }
+        24% { background-color: var(--brand-green-350); }
+        40% { background-color: rgb(75 205 205); }
+        56% { background-color: var(--brand-blue-500); }
+        68% { background-color: var(--brand-blue-700); }
+        84% { background-color: var(--brand-orange-200); }
+        100% { transform: scaleX(1); background-color: var(--brand-orange-500); }
+    }
+    @media (prefers-reduced-motion: reduce) { .scroll-progress { animation: none; display: none; } }
+}
+@media (prefers-reduced-motion: reduce) { .scroll-progress { display: none; } }

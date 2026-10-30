@@ -1,0 +1,63 @@
+/* Motion is optional. Everything is readable and linked in the static state. */
+.headline-mask { display: block; overflow: clip; padding-bottom: .1em; margin-bottom: -.1em; }
+.headline-mask > span { display: block; }
+
+.featured, .post-card, .directory-card { position: relative; }
+.featured h2 a::after, .post-card h3 a::after, .directory-card h2 a::after {
+    content: ''; position: absolute; inset: 0; z-index: 1;
+}
+.featured:has(:focus-visible), .post-card:has(:focus-visible), .directory-card:has(:focus-visible) {
+    outline: 2px solid var(--focus); outline-offset: 6px;
+}
+.featured a:focus-visible, .post-card a:focus-visible, .directory-card a:focus-visible { outline: none; }
+.featured .art-frame, .post-card .art-frame, .directory-card .art-frame { position: relative; isolation: isolate; }
+.featured .art-frame::after, .post-card .art-frame::after, .directory-card .art-frame::after {
+    content: ''; position: absolute; right: 0; bottom: 0; width: 30px; height: 30px;
+    background: var(--accent); clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    pointer-events: none; transform: translate(100%, 100%);
+}
+.featured:has(:focus-visible) .art-frame::after,
+.post-card:has(:focus-visible) .art-frame::after,
+.directory-card:has(:focus-visible) .art-frame::after { transform: translate(0, 0); }
+.featured:has(:focus-visible) h2 a, .post-card:has(:focus-visible) h3 a,
+.directory-card:has(:focus-visible) h2 a { text-decoration: underline; text-underline-offset: 4px; }
+
+.read-link { position: relative; text-decoration: none; }
+.read-link::after {
+    content: ''; position: absolute; bottom: 8px; left: 0; right: 0; height: 1px;
+    background: currentColor; transform: scaleX(.35); transform-origin: left;
+}
+.read-link:hover::after, .read-link:focus-visible::after { transform: scaleX(1); }
+
+@media (hover: hover) {
+    .featured:hover .art-frame::after, .post-card:hover .art-frame::after,
+    .directory-card:hover .art-frame::after { transform: translate(0, 0); }
+    .featured:hover h2 a, .post-card:hover h3 a, .directory-card:hover h2 a {
+        text-decoration: underline; text-underline-offset: 4px;
+    }
+}
+.featured:active .art-frame::after, .post-card:active .art-frame::after,
+.directory-card:active .art-frame::after { transform: translate(0, 0); }
+
+@media (prefers-reduced-motion: no-preference) {
+    .headline-mask > span { animation: editorial-headline-in var(--duration-editorial) var(--ease-out) backwards; }
+    .headline-mask:nth-child(2) > span { animation-delay: 80ms; }
+    .featured .art-frame img, .post-card .art-frame img, .directory-card .art-frame img {
+        transition: transform var(--duration-editorial) var(--ease-out);
+    }
+    .featured .art-frame::after, .post-card .art-frame::after, .directory-card .art-frame::after,
+    .read-link::after { transition: transform var(--duration-ui) var(--ease-out); }
+    .featured:has(:focus-visible) .art-frame img, .post-card:has(:focus-visible) .art-frame img,
+    .directory-card:has(:focus-visible) .art-frame img { transform: scale(1.025); }
+    .featured:has(:focus-visible) .read-link span, .directory-card:has(:focus-visible) .read-link span { transform: translateX(4px); }
+    .drawer.open .drawer-qr { animation: drawer-link-in var(--duration-enter) var(--ease-out) 45ms backwards; }
+    .drawer.open nav a { animation-delay: calc(var(--entry-delay, 30ms) + 55ms); }
+    .drawer.open .drawer-footer { animation: drawer-link-in var(--duration-enter) var(--ease-out) 200ms backwards; }
+    .drawer .drawer-qr:focus-visible { opacity: 1 !important; transform: none !important; }
+    @media (hover: hover) {
+        .featured:hover .art-frame img, .post-card:hover .art-frame img,
+        .directory-card:hover .art-frame img { transform: scale(1.025); }
+        .featured:hover .read-link span, .directory-card:hover .read-link span { transform: translateX(4px); }
+    }
+    @keyframes editorial-headline-in { from { transform: translateY(105%); } to { transform: translateY(0); } }
+}

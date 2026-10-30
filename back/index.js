@@ -36,6 +36,11 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
         return req.get('x-ms-client-principal-idp') === 'aad' && req.get('x-ms-client-principal-id') === process.env.ADMIN_OBJECT_ID
     }
     function requireAdmin(req, res, next) { if (!isAdmin(req)) return res.status(401).json({ error: 'Sign in with the administrator account to continue.' }); next() }
+    function requireCurrentVersion(post, version) {
+        if (post ? post.version !== version : Boolean(version)) {
+            throw Object.assign(new Error('This article changed in another window. Reload it before saving again; your current text is still here.'), { status: 409 })
+        }
+    }
     app.use('/api', (req, res, next) => {
         if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next()
         const origin = process.env.PUBLIC_ORIGIN || `${req.protocol}://${req.get('host')}`
@@ -83,6 +88,7 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
         if (post.slug !== req.params.slug) return res.status(400).json({ error: 'The article URL does not match its slug.' })
         const previous = await store.get(post.slug)
         if (previous?.status === 'trashed') return res.status(409).json({ error: 'Restore this article from Trash before editing it.' })
+        requireCurrentVersion(previous, req.body.version)
         const now = new Date().toISOString()
         const saved = await store.save({ ...post, createdAt: previous?.createdAt || now, updatedAt: now, publishedAt: post.status === 'published' ? previous?.publishedAt || now : previous?.publishedAt || '', minutes: Math.max(1, Math.ceil(post.body.split(/\s+/).length / 220)) }, req.body.version || undefined)
         res.json(saved)
@@ -90,6 +96,7 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
     app.delete('/api/admin/posts/:slug', requireAdmin, async (req, res) => {
         const post = await store.get(req.params.slug)
         if (!post) return res.sendStatus(404)
+        requireCurrentVersion(post, req.body.version)
         const now = new Date().toISOString()
         res.json(await store.save({ ...post, status: 'trashed', deletedAt: now, updatedAt: now }, req.body.version || 'missing-version'))
     })
@@ -97,6 +104,7 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
         const post = await store.get(req.params.slug)
         if (!post) return res.sendStatus(404)
         if (post.status !== 'trashed') return res.status(409).json({ error: 'This article is not in Trash. Refresh the article list.' })
+        requireCurrentVersion(post, req.body.version)
         res.json(await store.save({ ...post, status: 'draft', deletedAt: '', updatedAt: new Date().toISOString() }, req.body.version || 'missing-version'))
     })
     app.post('/api/admin/preview', requireAdmin, (req, res) => res.json({ html: markdown(String(req.body.body || '').slice(0, 200000)) }))

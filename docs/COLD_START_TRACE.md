@@ -216,3 +216,13 @@ This cannot remove the much larger runtime-identity setup overhead.
 The clean Consumption environment never finished provisioning within the test
 window (about twelve minutes in Waiting) and was scheduled for deletion. No app
 or private credentials were deployed there, so that comparison is inconclusive.
+
+### Production trial rejected
+
+On revision 0000016 / merge61423c8, the control plane confirmed zero replicas
+before the 19:23:35 UTC measurement. TCP startup + unchanged HTTP readiness took
+24.533s for the article,22.490s for health,and0.242s immediately warm. First
+storage time1,675ms,auth1,545ms. It did not improve the prior24.052s live cold
+sample. Restore the original HTTP startup probe; do not retain this change on
+the strength of faster diagnostic samples. The managed-identity diagnosis is
+independent of this rejected mitigation.

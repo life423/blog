@@ -39,7 +39,10 @@ class LocalStore {
 
 class AzureStore {
     constructor(account) {
-        const source = new DefaultAzureCredential()
+        const source = new DefaultAzureCredential({ additionalPolicies: [{
+            position: 'perRetry',
+            policy: { name: 'storageAuthTiming', sendRequest: (request, next) => timeStorage('auth_http', () => next(request)) },
+        }] })
         const credential = { getToken: (...args) => timeStorage('auth', () => source.getToken(...args)) }
         this.table = new TableClient(`https://${account}.table.core.windows.net`, 'posts', credential)
         this.blobs = new BlobServiceClient(`https://${account}.blob.core.windows.net`, credential)

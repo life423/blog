@@ -85,3 +85,24 @@ request-local AsyncLocalStorage. `table`/`blob` include their authentication
 work; `auth` is a nested duration, not an additional duration to sum. Headers
 contain numeric timings only, with no tokens, account names, or article data.
 Concurrent requests are isolated, and private operations expose no new headers.
+
+On newly deployed revision 0000011's first article read (not a zero-replica
+measurement), auth took 2,750ms; table including auth 2,805ms; blob 73.5ms.
+Selecting only `ManagedIdentityCredential` via `AZURE_TOKEN_CREDENTIALS` on
+revision 0000012 retained the same identity/permissions and reduced the login
+chain. Its first article read still spent 2,718ms on auth, table 2,762ms,
+blob 97.4ms. The unused credential chain is therefore not the main delay.
+The explicit production credential setting is retained for predictable auth;
+local development keeps the normal default chain.
+
+Important correction to the registry test above: its events subsequently showed
+the pre-existing revision still referring to the old generated image-pull secret
+while Azure reconciled the app-level registry change. Thus that run is confounded
+and cannot establish the effect of canonicalizing the registry. New revisions
+use the new configuration. Check for image-pull-secret warnings before accepting
+the next cold measurement.
+
+The next trace also records `auth_http`, timing the credential SDK's HTTP policy
+without inspecting request/response bodies or headers. This distinguishes time
+inside the token network call from credential-chain/SDK work. It is nested in
+`auth`; durations are not additive. No auth retry/timeout policy is changed.

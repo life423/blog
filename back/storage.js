@@ -3,8 +3,8 @@ import { dirname, resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { TableClient } from '@azure/data-tables'
 import { BlobServiceClient } from '@azure/storage-blob'
-import { DefaultAzureCredential } from '@azure/identity'
 import { timeStorage } from './storage-timing.js'
+import { createStorageCredential } from './storage-credential.js'
 
 export function createStore({ account = process.env.AZURE_STORAGE_ACCOUNT, file = '.data/posts.json' } = {}) {
     if (account) return new AzureStore(account)
@@ -39,11 +39,7 @@ class LocalStore {
 
 class AzureStore {
     constructor(account) {
-        const source = new DefaultAzureCredential({ additionalPolicies: [{
-            position: 'perRetry',
-            policy: { name: 'storageAuthTiming', sendRequest: (request, next) => timeStorage('auth_http', () => next(request)) },
-        }] })
-        const credential = { getToken: (...args) => timeStorage('auth', () => source.getToken(...args)) }
+        const credential = createStorageCredential()
         this.table = new TableClient(`https://${account}.table.core.windows.net`, 'posts', credential)
         this.blobs = new BlobServiceClient(`https://${account}.blob.core.windows.net`, credential)
     }

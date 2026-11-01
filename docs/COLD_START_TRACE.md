@@ -102,7 +102,18 @@ and cannot establish the effect of canonicalizing the registry. New revisions
 use the new configuration. Check for image-pull-secret warnings before accepting
 the next cold measurement.
 
-The next trace also records `auth_http`, timing the credential SDK's HTTP policy
-without inspecting request/response bodies or headers. This distinguishes time
-inside the token network call from credential-chain/SDK work. It is nested in
-`auth`; durations are not additive. No auth retry/timeout policy is changed.
+The initial `auth_http` policy hook did not run: ManagedIdentityCredential
+replaces `additionalPolicies` with its own IMDS retry policy. Replace that hook
+with a wrapper around the SDK's standard `createDefaultHttpClient` transport.
+This records `auth_http` without inspecting request/response bodies or headers,
+distinguishing token network time from SDK work. It is nested in `auth`;
+durations are not additive. No auth retry/timeout policy is changed. A fake
+managed-identity transport test verifies the hook executes and token caching
+still prevents a second network request. The pipeline dependency was already
+installed transitively at 1.25.0 and is now declared directly at the same version.
+
+Azure's supported identity lifecycle `Main` is also under investigation. There
+are no user init containers; restricting identity access to the main container
+retains the same identity and storage RBAC. The raw ARM API confirms the setting
+(the installed Container Apps CLI's model omits it from `show`). This is a
+restrictive configuration experiment, not a proven cold-start optimization.

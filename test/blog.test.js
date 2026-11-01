@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { createApp } from '../back/index.js'
+const { createApp } = await import(process.env.BLOG_SERVER_ENTRY || '../back/index.js')
 import { createStore } from '../back/storage.js'
 import { markdown, validatePost } from '../back/content.js'
 import { hashPassword, verifyPassword } from '../back/auth.js'

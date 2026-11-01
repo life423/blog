@@ -57,30 +57,36 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
     })
     app.post('/api/admin/logout', (_req, res) => res.clearCookie('blog-session', { path: '/', secure: process.env.NODE_ENV === 'production', sameSite: 'strict' }).json({ ok: true }))
 
-    async function publicPosts() {
-        const posts = (await store.list()).filter(post => post.status === 'published').sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''))
+    async function publicStorage(res, read) {
+        const started = performance.now()
+        const value = await read()
+        res.append('Server-Timing', `storage;dur=${(performance.now() - started).toFixed(1)}`)
+        return value
+    }
+    async function publicPosts(res) {
+        const posts = (await publicStorage(res, () => store.list())).filter(post => post.status === 'published').sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''))
         return posts.length ? { posts, sample: false } : { posts: preview ? examples : [], sample: preview }
     }
     app.get('/health', (_req, res) => res.json({ status: 'ok' }))
     app.get('/index.html', (_req, res) => res.redirect(308, '/'))
     app.get('/', async (req, res) => {
-        const { posts, sample } = await publicPosts()
+        const { posts, sample } = await publicPosts(res)
         const topic = topics.includes(req.query.topic) ? req.query.topic : ''
         res.send(home(topic ? posts.filter(post => post.topic === topic) : posts, { topic, sample }))
     })
     app.get('/articles', async (req, res) => {
-        const { posts, sample } = await publicPosts()
+        const { posts, sample } = await publicPosts(res)
         const topic = topics.includes(req.query.topic) ? req.query.topic : ''
         res.send(directory(topic ? posts.filter(post => post.topic === topic) : posts, { topic, sample }))
     })
     app.get('/articles/:slug', async (req, res) => {
-        let post = await store.get(req.params.slug)
+        let post = await publicStorage(res, () => store.get(req.params.slug))
         let sample = false
         if (!post && preview) { post = examples.find(item => item.slug === req.params.slug); sample = Boolean(post) }
         if (!post || post.status !== 'published' && !sample) return res.status(404).send(shell('<section class="content-width empty-state"><h1>Article not found.</h1><p>It may be a draft or the address may have changed.</p><a class="read-link" href="/">Back to the journal →</a></section>'))
         res.send(article(post, { sample }))
     })
-    app.get('/api/posts', async (_req, res) => { const { posts, sample } = await publicPosts(); res.json({ posts: posts.map(({ body, bodyKey, version, ...post }) => post), sample }) })
+    app.get('/api/posts', async (_req, res) => { const { posts, sample } = await publicPosts(res); res.json({ posts: posts.map(({ body, bodyKey, version, ...post }) => post), sample }) })
     app.get('/api/admin/posts', requireAdmin, async (_req, res) => res.json(await store.list()))
     app.get('/api/admin/posts/:slug', requireAdmin, async (req, res) => { const post = await store.get(req.params.slug); if (!post) return res.sendStatus(404); res.json(post) })
     app.put('/api/admin/posts/:slug', requireAdmin, async (req, res) => {

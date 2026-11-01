@@ -1,7 +1,7 @@
 [
   {
     "type": "Startup",
-    "httpGet": { "path": "/health", "port": 8080, "scheme": "HTTP" },
+    "tcpSocket": { "port": 8080 },
     "initialDelaySeconds": 0,
     "periodSeconds": 1,
     "timeoutSeconds": 3,

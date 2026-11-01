@@ -149,3 +149,70 @@ authentication failure, in addition to transport measurement and token cache
 reuse. All 19 source and five bundled backend tests pass. The deployed change
 still needs its own genuine scale-from-zero measurement; do not claim the full
 startup delay solved.
+
+## Controlled isolation of Azure's runtime identity setup
+
+On November 1 a temporary, permissionless diagnostic app was used in the same
+existing East US 2 Consumption environment. It ran the **exact production blog
+image** (`68dec29dd1c539672cd5be9e47086b63c4292dc5`), overriding only its command
+with a minimal Node HTTP server. No blog/admin secrets or storage access were
+given to the diagnostic. CPU 0.25, memory 0.5Gi, port 8080 and HTTP probes were
+held constant. No application/SDK/Markdown/database code ran in this comparison.
+The Docker health-check metadata, including its 20-second grace period, remained
+in the image throughout.
+
+After the control plane confirmed zero replicas before each request:
+
+| Diagnostic configuration | First byte | Scheduled to application-container start |
+| --- | ---: | ---: |
+| No managed identity | 8.836s | 6.069s |
+| System-assigned identity, main-container access | 21.539s | 19.581s |
+| User-assigned identity, main-container access | 21.372s | 19.381s |
+| Managed identity removed again | 7.518s | 5.537s |
+
+This A/B/reversal experiment identifies **enabling runtime managed identity** as
+the source of the extra provisioning wait in this configuration. The portfolio
+does not enable that feature. It is not a missing Docker container, a build
+running during startup, or an inherent 20-second image health-check delay.
+Switching identity types did not help. Individual Azure internal components
+are not named by the emitted ContainerStarted events; do not invent a more
+specific internal implementation cause than the experiment establishes.
+
+A separate diagnostic with user-assigned identity and Azure's default TCP probes
+took 17.654s (15.884s scheduled-to-container-start). It still retains the large
+identity overhead. Platform times vary, so one faster sample does not prove
+changing probe type saves a fixed number of seconds. A narrower TCP-startup /
+HTTP-readiness comparison is being measured separately.
+
+Raw receipts, zero-replica checks, response headers, configuration snapshots and
+event timestamps are under ignored `.azure-local/cold-trace/diag-*`,
+`.azure-local/diag-controlled-events.json`, and
+`.azure-local/diag-default-probe-events.json`. Image metadata was also checked
+directly through the registry: Linux amd64, eight compressed layers totalling
+62,401,187 bytes, standard Node entrypoint and `node back/index.js` command.
+
+Production remains on revision 0000015 / merge 68dec29, with its existing
+database, published content, admin panel and managed identity. The user rejected
+manual certificate renewal and an architecture overhaul. Do not replace managed
+identity with an expiring credential or migrate public publishing without a new
+explicit decision. No production probes were changed for these experiments.
+Temporary diagnostic resources must be removed when measurements finish.
+
+### Narrow probe mitigation under test
+
+Keeping HTTP readiness, a TCP startup probe returned 17.922s from confirmed
+zero replicas (15.794s scheduling-to-container-start). Reverting the same
+diagnostic to HTTP startup returned 21.506s, matching the earlier 21.372s HTTP
+sample. Initial deployment timings varied, including a slower TCP deployment;
+do not mix initial-rollout samples with the explicitly confirmed cold requests.
+This supports a bounded production trial, not a claim of a guaranteed 3.5s gain.
+
+Change only Startup to TCP port 8080; retain HTTP Readiness `/health` on port8080
+and all thresholds, resources, credentials and scale settings. A listening socket
+alone cannot admit traffic: HTTP readiness must also pass. Restore HTTP startup
+if genuine-zero-replica production measurement does not support the mitigation.
+This cannot remove the much larger runtime-identity setup overhead.
+
+The clean Consumption environment never finished provisioning within the test
+window (about twelve minutes in Waiting) and was scheduled for deletion. No app
+or private credentials were deployed there, so that comparison is inconclusive.

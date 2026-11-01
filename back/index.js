@@ -6,6 +6,7 @@ import { randomBytes, createHmac, timingSafeEqual } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import { createStore } from './storage.js'
+import { collectStorageTiming } from './storage-timing.js'
 import { verifyPassword } from './auth.js'
 import { examples, escape, markdown, topics, validatePost } from './content.js'
 import { home, article, directory, shell } from './views.js'
@@ -58,9 +59,8 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
     app.post('/api/admin/logout', (_req, res) => res.clearCookie('blog-session', { path: '/', secure: process.env.NODE_ENV === 'production', sameSite: 'strict' }).json({ ok: true }))
 
     async function publicStorage(res, read) {
-        const started = performance.now()
-        const value = await read()
-        res.append('Server-Timing', `storage;dur=${(performance.now() - started).toFixed(1)}`)
+        const { value, header } = await collectStorageTiming(read)
+        res.append('Server-Timing', header)
         return value
     }
     async function publicPosts(res) {

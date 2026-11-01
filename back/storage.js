@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto'
 import { TableClient } from '@azure/data-tables'
 import { BlobServiceClient } from '@azure/storage-blob'
 import { DefaultAzureCredential } from '@azure/identity'
+import { timeStorage } from './storage-timing.js'
 
 export function createStore({ account = process.env.AZURE_STORAGE_ACCOUNT, file = '.data/posts.json' } = {}) {
     if (account) return new AzureStore(account)
@@ -38,15 +39,18 @@ class LocalStore {
 
 class AzureStore {
     constructor(account) {
-        const credential = new DefaultAzureCredential()
+        const source = new DefaultAzureCredential()
+        const credential = { getToken: (...args) => timeStorage('auth', () => source.getToken(...args)) }
         this.table = new TableClient(`https://${account}.table.core.windows.net`, 'posts', credential)
         this.blobs = new BlobServiceClient(`https://${account}.blob.core.windows.net`, credential)
     }
     async list() {
         const posts = []
-        for await (const entity of this.table.listEntities({ queryOptions: { filter: "PartitionKey eq 'post'" } })) {
-            posts.push(this.decode(entity))
-        }
+        await timeStorage('table', async () => {
+            for await (const entity of this.table.listEntities({ queryOptions: { filter: "PartitionKey eq 'post'" } })) {
+                posts.push(this.decode(entity))
+            }
+        })
         return posts
     }
     decode(entity) {
@@ -55,8 +59,8 @@ class AzureStore {
     }
     async get(slug) {
         try {
-            const post = this.decode(await this.table.getEntity('post', slug))
-            const bytes = await this.blobs.getContainerClient('articles').getBlockBlobClient(post.bodyKey).downloadToBuffer()
+            const post = this.decode(await timeStorage('table', () => this.table.getEntity('post', slug)))
+            const bytes = await timeStorage('blob', () => this.blobs.getContainerClient('articles').getBlockBlobClient(post.bodyKey).downloadToBuffer())
             return { ...post, body: bytes.toString('utf8') }
         } catch (error) { if (error.statusCode === 404) return undefined; throw error }
     }

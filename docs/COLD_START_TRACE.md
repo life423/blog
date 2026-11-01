@@ -60,3 +60,28 @@ Concurrent blog health/article requests distinguish readiness from the first
 storage read without comparing one cold request with an already-warmed app.
 Treat failed or interrupted measurement runs as invalid and repeat after a new
 natural scale-down. Do not claim a full solution from one improved observation.
+
+## Follow-up isolation
+
+Revision 0000010, confirmed zero replicas before 18:08:25 UTC: health TTFB
+18.391s, article 21.743s, first storage read 3,046ms, immediate warm article
+0.307s / storage 33.5ms. Application container started at 18:08:43.142,
+roughly 17.24s after the request began. The improvement versus the earlier
+26.25s observation includes variable platform provisioning time and cannot
+all be attributed to probes.
+
+Normalized the existing Docker Hub registry server from `index.docker.io` to
+`docker.io`, matching the image prefix, Microsoft's container configuration
+example, and the portfolio. Retained the existing username/secret reference;
+no new registry or credentials. After confirming zero replicas again, the
+18:19:12 UTC request took 19.086s for health and 22.296s for the article,
+with 2,908ms storage time. This did not materially improve cold startup and
+must not be described as the performance fix. Portfolio TTFB in that run was
+9.038s, but its replica count was not checked immediately before that run;
+the earlier independently confirmed cold sample remains the valid comparison.
+
+The next diagnostic separates `auth`, `table`, and `blob` durations using
+request-local AsyncLocalStorage. `table`/`blob` include their authentication
+work; `auth` is a nested duration, not an additional duration to sum. Headers
+contain numeric timings only, with no tokens, account names, or article data.
+Concurrent requests are isolated, and private operations expose no new headers.

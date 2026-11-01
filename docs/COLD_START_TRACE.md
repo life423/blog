@@ -117,3 +117,35 @@ are no user init containers; restricting identity access to the main container
 retains the same identity and storage RBAC. The raw ARM API confirms the setting
 (the installed Container Apps CLI's model omits it from `show`). This is a
 restrictive configuration experiment, not a proven cold-start optimization.
+
+## Confirmed token transport bottleneck and bounded code change
+
+Revision 0000013 at 18:33:59.994 UTC had no replicas. The subsequent article
+request took 22.188s TTFB; health 18.707s; warm article 0.302s. Authentication
+was 2,927ms, table including auth 2,970ms, blob 112ms. Article HTML matched the
+warm response byte-for-byte. Portfolio was already running in this run, so use
+its earlier confirmed 9.274s cold sample instead. Main-only identity access did
+not materially improve startup. System events show scheduling at 18:34:01,
+application container start around 18:34:17 and a 179ms image pull, with no
+image-pull-secret warnings in this cold activation.
+
+Revision 0000014's first storage read after deployment (not a zero-replica
+test) finally measured the actual token transport: `auth_http` 2,974ms of
+`auth` 2,981ms, table 3,023ms, blob 119ms. This isolates almost all of the
+first authentication delay inside the managed-identity token HTTP request.
+It is not expensive Markdown rendering or a slow table/blob data read.
+
+The next code change acquires the normal storage token once when the Node
+entrypoint starts, concurrently with listening/readiness. Requests arriving
+during preparation join it and then use the SDK's normal token lookup, scopes,
+cache and refresh. A failed startup attempt is logged by error code/name only;
+requests still retry authentication normally. Health is not gated on storage.
+No recurring request, keepalive, article copy/cache, new resource, capacity or
+permission change. This can overlap only the brief application/readiness part;
+it cannot remove the much larger delay before Node exists.
+
+Tests cover concurrent startup/read token reuse and recovery after startup
+authentication failure, in addition to transport measurement and token cache
+reuse. All 19 source and five bundled backend tests pass. The deployed change
+still needs its own genuine scale-from-zero measurement; do not claim the full
+startup delay solved.

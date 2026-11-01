@@ -85,6 +85,9 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - name: Checkout deployment scripts
+        uses: actions/checkout@v4
+
       - name: Azure login
         uses: azure/login@v2
         with:
@@ -113,8 +116,5 @@ jobs:
         if: steps.preflight.outputs.ready == 'true'
         env:
           IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}:${{ github.sha }}
-        run: |
-          az containerapp update \
-            --name "$CONTAINER_APP_NAME" \
-            --resource-group "$AZURE_RESOURCE_GROUP" \
-            --image "$IMAGE_TAG"
+        shell: pwsh
+        run: ./scripts/configure-readiness.ps1 -AppName $env:CONTAINER_APP_NAME -ResourceGroup $env:AZURE_RESOURCE_GROUP -ImageTag $env:IMAGE_TAG

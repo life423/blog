@@ -62,7 +62,11 @@ jobs:
           # Isolated preview data only: no cloud credentials or production writes.
           trap 'docker logs blog-smoke; docker rm -f blog-smoke >/dev/null' EXIT
           docker run -d --name blog-smoke -p 127.0.0.1:8080:8080 \
-            -e NODE_ENV=test -e DESIGN_PREVIEW=true "$IMAGE_TAG"
+            "$IMAGE_TAG" node --input-type=module -e '
+              const { createApp } = await import("./back/index.js");
+              const store = { async list() { return []; }, async get() {} };
+              createApp({ store, credentials: {}, preview: true }).listen(8080, "0.0.0.0");
+            '
           for attempt in $(seq 1 30); do
             if curl --fail --silent http://127.0.0.1:8080/health; then break; fi
             sleep 1

@@ -153,5 +153,11 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
     const port = Number(process.env.PORT || 3188)
-    createApp().listen(port, process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1', () => console.log(`Beyond the Stack: http://127.0.0.1:${port} (startup ${Math.round(performance.now())}ms)`))
+    const store = createStore()
+    const preparationStarted = performance.now()
+    store.prepare?.().then(
+        () => console.log(`Storage authentication prepared in ${Math.round(performance.now() - preparationStarted)}ms`),
+        error => console.warn('Startup storage authentication unavailable:', error.code || error.name),
+    )
+    createApp({ store }).listen(port, process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1', () => console.log(`Beyond the Stack: http://127.0.0.1:${port} (startup ${Math.round(performance.now())}ms)`))
 }

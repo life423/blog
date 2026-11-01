@@ -40,9 +40,11 @@ class LocalStore {
 class AzureStore {
     constructor(account) {
         const credential = createStorageCredential()
+        this.credential = credential
         this.table = new TableClient(`https://${account}.table.core.windows.net`, 'posts', credential)
         this.blobs = new BlobServiceClient(`https://${account}.blob.core.windows.net`, credential)
     }
+    prepare() { return this.credential.prepare() }
     async list() {
         const posts = []
         await timeStorage('table', async () => {

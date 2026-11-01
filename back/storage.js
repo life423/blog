@@ -6,9 +6,9 @@ import { BlobServiceClient } from '@azure/storage-blob'
 import { timeStorage } from './storage-timing.js'
 import { createStorageCredential } from './storage-credential.js'
 
-export function createStore({ account = process.env.AZURE_STORAGE_ACCOUNT, file = '.data/posts.json' } = {}) {
-    if (account) return new AzureStore(account)
-    if (process.env.NODE_ENV === 'production') throw new Error('Production requires AZURE_STORAGE_ACCOUNT')
+export function createStore({ account = process.env.AZURE_STORAGE_ACCOUNT, connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING, file = '.data/posts.json' } = {}) {
+    if (account || connectionString) return new AzureStore(account, connectionString)
+    if (process.env.NODE_ENV === 'production') throw new Error('Production requires Azure storage configuration')
     return new LocalStore(resolve(file))
 }
 
@@ -38,13 +38,18 @@ class LocalStore {
 }
 
 class AzureStore {
-    constructor(account) {
+    constructor(account, connectionString) {
+        if (connectionString) {
+            this.table = TableClient.fromConnectionString(connectionString, 'posts')
+            this.blobs = BlobServiceClient.fromConnectionString(connectionString)
+            return
+        }
         const credential = createStorageCredential()
         this.credential = credential
         this.table = new TableClient(`https://${account}.table.core.windows.net`, 'posts', credential)
         this.blobs = new BlobServiceClient(`https://${account}.blob.core.windows.net`, credential)
     }
-    prepare() { return this.credential.prepare() }
+    prepare() { return this.credential?.prepare() || Promise.resolve() }
     async list() {
         const posts = []
         await timeStorage('table', async () => {

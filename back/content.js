@@ -27,7 +27,8 @@ export function validatePost(input) {
     if (!['draft', 'published'].includes(input.status)) throw invalid('Choose Draft or Published.')
     const cover = String(input.cover || '')
     if (cover && !/^\/media\/[a-f0-9-]+\.(png|jpg|webp)$/.test(cover)) throw invalid('Choose a cover uploaded through this editor.')
-    return { slug, title, excerpt, body, topic: input.topic, status: input.status, cover, coverAlt: String(input.coverAlt || '').slice(0, 240) }
+    const coverLayout = input.coverLayout === 'portrait' ? 'portrait' : 'landscape'
+    return { slug, title, excerpt, body, topic: input.topic, status: input.status, cover, coverLayout, coverAlt: String(input.coverAlt || '').slice(0, 240) }
 }
 
 function invalid(message) { return Object.assign(new Error(message), { status: 400 }) }

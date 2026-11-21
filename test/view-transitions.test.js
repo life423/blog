@@ -8,6 +8,16 @@ const posts = ['first-story', 'second-story', 'third-story'].map(slug => ({
 }))
 const names = html => [...html.matchAll(/data-transition-name="([a-z0-9-]+)"/g)].map(match => match[1])
 
+test('Portrait covers retain their orientation across article, homepage and directory', () => {
+    const portrait = { ...posts[0], cover: '/media/abc-123.jpg', coverAlt: 'Portrait mobile gameplay', coverLayout: 'portrait' }
+    for (const html of [home([portrait]), article(portrait), directory([portrait])]) {
+        assert.match(html, /art-frame--portrait/)
+        assert.match(html, /width="412" height="839"/)
+        assert.match(html, /Portrait mobile gameplay/)
+    }
+    assert.doesNotMatch(home(posts), /art-frame--portrait/)
+})
+
 test('Each story has one unique snapshot name, shared across cards and article heroes', () => {
     const homepage = names(home(posts))
     const listing = names(directory(posts))

@@ -22,13 +22,14 @@ export function shell(content, { title = 'Full Stack Web Development — Beyond 
 
 function artwork(post, featured = false) {
     const url = post.cover || `/assets/illustrations/${post.art || 'code'}.svg`
+    const portrait = Boolean(post.cover && post.coverLayout === 'portrait')
     // Stable, CSS-safe and unique per story, even when different stories share an image.
     const transition = `story-${Buffer.from(post.slug).toString('hex')}`
     // This article's art-directed SVG replaces its static cover; other uploads stay images.
     if (post.slug === 'learning-with-cuda' || post.art === 'simulation') {
         return `<div class="art-frame${featured ? ' art-frame--feature' : ''}" data-transition-name="${transition}" data-in-view-animation>${cudaIllustration(transition)}</div>`
     }
-    return `<div class="art-frame${featured ? ' art-frame--feature' : ''}" data-transition-name="${transition}"><img src="${e(url)}" alt="${e(post.cover ? post.coverAlt : post.art === 'simulation' ? 'Geometric agents and orange learning paths on a simulation grid' : post.art === 'pipeline' ? 'A commit, build and deploy pipeline diagram' : 'A small code illustration')}" width="800" height="400" ${featured ? 'fetchpriority="high"' : 'loading="lazy"'}></div>`
+    return `<div class="art-frame${featured ? ' art-frame--feature' : ''}${portrait ? ' art-frame--portrait' : ''}" data-transition-name="${transition}"><img src="${e(url)}" alt="${e(post.cover ? post.coverAlt : post.art === 'simulation' ? 'Geometric agents and orange learning paths on a simulation grid' : post.art === 'pipeline' ? 'A commit, build and deploy pipeline diagram' : 'A small code illustration')}" width="${portrait ? 412 : 800}" height="${portrait ? 839 : 400}" ${featured ? 'fetchpriority="high"' : 'loading="lazy"'}></div>`
 }
 
 const category = post => `<span class="category">${e(post.topic)}</span>`

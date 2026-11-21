@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { exportPublicSite } from './static-public.js'
 
@@ -9,7 +9,9 @@ export async function deployStaticFiles(output, { token = process.env.SWA_DEPLOY
     if (!token) throw new Error('Static publishing is not configured')
     await new Promise((resolve, reject) => {
         // The secret is only a child environment value, never a command argument/log.
-        const child = spawn(binary, [], { signal, env: {
+        // The vendor client writes its zip into cwd. Keep that writable and
+        // outside the exported site, without granting write access to app code.
+        const child = spawn(binary, [], { signal, cwd: dirname(output), env: {
             PATH: process.env.PATH, HOME: process.env.HOME, TMPDIR: process.env.TMPDIR,
             DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: '1',
             DEPLOYMENT_ACTION: 'upload', DEPLOYMENT_PROVIDER: 'SwaCli', DEPLOYMENT_TOKEN: token,
@@ -19,7 +21,7 @@ export async function deployStaticFiles(output, { token = process.env.SWA_DEPLOY
         // The vendor client may print response details; never persist its raw output.
         child.stdout.resume(); child.stderr.resume()
         child.once('error', reject)
-        child.once('exit', code => code === 0 ? resolve() : reject(new Error(`Static deployment client exited ${code}`)))
+        child.once('exit', code => code === 0 ? resolve() : reject(Object.assign(new Error(`Static deployment client exited ${code}`), { code: `STATIC_CLIENT_EXIT_${code}` })))
     })
 }
 
@@ -40,7 +42,8 @@ export function createPublisher({ store, deploy = deployStaticFiles, editorOrigi
                 let succeeded = false
                 for (let attempt = 0; attempt < 3; attempt++) {
                     if (abort.signal.aborted) throw new Error('Publication lease lost')
-                    const output = await mkdtemp(join(tmpdir(), 'blog-public-'))
+                    const workspace = await mkdtemp(join(tmpdir(), 'blog-public-'))
+                    const output = join(workspace, 'site')
                     try {
                         await store.updatePublication({ phase: 'deploying', error: '', updatedAt: new Date().toISOString() })
                         await exportPublicSite({ store, output, editorOrigin, release, publicationId: state.requestedId })
@@ -52,8 +55,8 @@ export function createPublisher({ store, deploy = deployStaticFiles, editorOrigi
                         console.warn('Static publication attempt failed:', error.code || error.name)
                         if (attempt < 2 && !abort.signal.aborted) await retryDelay(attempt, abort.signal)
                     } finally {
-                        if (!output.startsWith(join(tmpdir(), 'blog-public-'))) throw new Error('Unexpected public build directory')
-                        await rm(output, { recursive: true, force: true })
+                        if (!workspace.startsWith(join(tmpdir(), 'blog-public-'))) throw new Error('Unexpected public build directory')
+                        await rm(workspace, { recursive: true, force: true })
                     }
                 }
                 if (!succeeded) {

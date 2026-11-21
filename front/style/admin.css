@@ -93,6 +93,8 @@ textarea { resize: vertical; line-height: 1.7; }
 .editor-actions .primary { margin-left: auto; }
 .error-message { background: var(--brand-orange-50); border-left: 3px solid var(--brand-orange-700); color: var(--brand-orange-900); padding: 16px; font-size: .8125rem; margin-top: 20px; }
 .field-error { color: var(--brand-orange-900); font-size: .75rem; }
+.publication-panel { margin-block: 16px 24px; padding: 12px 16px; border-left: 3px solid var(--brand-green-700); background: var(--brand-green-50); }
+.publication-panel p { margin: 0; color: var(--ink); }
 .text-button { border: 0; background: transparent; color: var(--link); text-decoration: underline; text-underline-offset: 4px; min-height: var(--target-min); padding: 8px 0; font-size: .75rem; }
 dialog { border: 1px solid var(--line); border-radius: 8px; width: min(900px, calc(100% - 32px)); max-height: calc(100dvh - 48px); padding: 32px; color: var(--ink); }
 dialog::backdrop { background: #0008; backdrop-filter: blur(2px); }

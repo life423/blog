@@ -12,6 +12,11 @@ env:
   CONTAINER_APP_NAME: blogportfolio
   AZURE_RESOURCE_GROUP: portfolio-apps
 
+# Never let an older code release deploy after a newer one.
+concurrency:
+  group: blog-release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -54,6 +59,8 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_REPOSITORY }}:${{ github.sha }}
+          build-args: |
+            APP_RELEASE=${{ github.sha }}
 
       - name: Verify production container layout
         env:
@@ -118,3 +125,29 @@ jobs:
           IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}:${{ github.sha }}
         shell: pwsh
         run: ./scripts/configure-readiness.ps1 -AppName $env:CONTAINER_APP_NAME -ResourceGroup $env:AZURE_RESOURCE_GROUP -ImageTag $env:IMAGE_TAG
+
+      - name: Wait for the new backend release
+        if: steps.preflight.outputs.ready == 'true'
+        run: |
+          for attempt in $(seq 1 90); do
+            LATEST=$(az containerapp show -n "$CONTAINER_APP_NAME" -g "$AZURE_RESOURCE_GROUP" --query properties.latestRevisionName -o tsv)
+            READY=$(az containerapp show -n "$CONTAINER_APP_NAME" -g "$AZURE_RESOURCE_GROUP" --query properties.latestReadyRevisionName -o tsv)
+            if [ "$LATEST" = "$READY" ]; then exit 0; fi
+            sleep 5
+          done
+          echo 'Backend readiness timed out'
+          exit 1
+
+      - name: Set up Node.js for public deployment
+        if: steps.preflight.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Refresh static public site from the deployed backend
+        if: steps.preflight.outputs.ready == 'true'
+        env:
+          EDITOR_ORIGIN: ${{ vars.EDITOR_ORIGIN }}
+          PUBLIC_DEPLOY_TRIGGER_SECRET: ${{ secrets.PUBLIC_DEPLOY_TRIGGER_SECRET }}
+          EXPECTED_RELEASE: ${{ github.sha }}
+        run: node scripts/refresh-public-site.js

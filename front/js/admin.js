@@ -7,6 +7,32 @@ let dirty = false
 let busy = false
 let cloudLogin = false
 let listFilter = 'articles'
+let staticPublishing = false
+let publicationPoll
+
+async function refreshPublication() {
+    if (!staticPublishing) return
+    clearTimeout(publicationPoll)
+    const panel = $('#publication-panel')
+    panel.hidden = false
+    try {
+        const state = await request('/api/admin/publication')
+        $('#retry-publication').hidden = state.phase !== 'failed'
+        $('#publication-status').textContent = state.phase === 'deploying' ? 'Changes saved · updating the public site… You can keep writing.'
+            : state.phase === 'failed' ? state.error
+            : state.phase === 'live' ? 'Public site is up to date.' : 'Public site is ready for your next publication.'
+        if (state.phase === 'deploying') publicationPoll = setTimeout(refreshPublication, 3000)
+    } catch {
+        $('#publication-status').textContent = 'Unable to check the public site update. Your saved articles are safe.'
+        $('#retry-publication').hidden = false
+    }
+}
+$('#retry-publication').addEventListener('click', async () => {
+    $('#retry-publication').disabled = true
+    try { await request('/api/admin/publication', { method: 'POST' }); await refreshPublication() }
+    catch (error) { $('#publication-status').textContent = error.message }
+    finally { $('#retry-publication').disabled = false }
+})
 
 async function request(url, options = {}) {
     const response = await fetch(url, { ...options, headers: { 'x-blog-request': '1', ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), ...options.headers } })
@@ -93,6 +119,7 @@ async function save(status) {
         current = saved
         if (!editedDuringSave) reset(saved)
         else { dirty = true; $('#save-status').textContent = 'Saved earlier changes · newer edits unsaved' }
+        refreshPublication()
         try { await loadList() }
         catch (error) { showError(errorBox, `Article saved, but the list could not refresh. ${error.message}`) }
     } catch (error) { $('#save-status').textContent = 'Not saved'; showError(errorBox, error.message) }
@@ -111,6 +138,7 @@ $('#trash-post').addEventListener('click', async () => {
         const post = await request(`/api/admin/posts/${current.slug}`, { method: 'DELETE', body: JSON.stringify({ version: current.version }) })
         listFilter = 'trash'
         reset(post)
+        refreshPublication()
         await loadList()
         setBusy(false)
         $('#restore-post').focus()
@@ -182,6 +210,9 @@ $('#logout').addEventListener('click', async () => {
 async function init() {
     const session = await request('/api/admin/session')
     cloudLogin = Boolean(session.loginUrl)
+    staticPublishing = Boolean(session.staticPublishing)
+    document.querySelector('.return-link').href = session.publicOrigin
+    document.querySelector('.wordmark').href = session.publicOrigin
     $('#login').hidden = session.authenticated
     $('#workspace').hidden = !session.authenticated
     $('#cloud-login').hidden = !session.loginUrl
@@ -189,6 +220,6 @@ async function init() {
     $('#login-form').hidden = !session.passwordLogin
     $('#login-description').textContent = session.passwordLogin ? 'Private access for the journal administrator.' : session.loginUrl ? 'Sign in with the configured administrator account.' : 'Administrator sign-in has not been configured for this environment.'
     $('#storage-note').textContent = session.storage === 'azure' ? 'Connected to Azure storage.' : 'Local preview · drafts stay on this computer.'
-    if (session.authenticated) { reset(); await loadList() }
+    if (session.authenticated) { reset(); await loadList(); refreshPublication() }
 }
 init().catch(error => showError($('#page-error'), error.message))

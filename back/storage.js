@@ -48,7 +48,7 @@ class AzureStore {
     async list() {
         const posts = []
         await timeStorage('table', async () => {
-            for await (const entity of this.table.listEntities({ queryOptions: { filter: "PartitionKey eq 'post'" } })) {
+            for await (const entity of this.table.listEntities({ queryOptions: { filter: "PartitionKey eq 'post' and RowKey ne '_publication'" } })) {
                 posts.push(this.decode(entity))
             }
         })
@@ -65,21 +65,40 @@ class AzureStore {
             return { ...post, body: bytes.toString('utf8') }
         } catch (error) { if (error.statusCode === 404) return undefined; throw error }
     }
-    async save(post, version) {
+    async save(post, version, { publicChanged = false } = {}) {
         const bodyKey = `${post.slug}/${randomUUID()}.md`
         const blob = this.blobs.getContainerClient('articles').getBlockBlobClient(bodyKey)
         await blob.uploadData(Buffer.from(post.body), { blobHTTPHeaders: { blobContentType: 'text/markdown; charset=utf-8' } })
         const { body, version: ignored, ...metadata } = post
         const entity = { ...metadata, bodyKey, partitionKey: 'post', rowKey: post.slug }
         try {
-            if (version) await this.table.updateEntity(entity, 'Replace', { etag: version })
-            else await this.table.createEntity(entity)
+            const actions = [version ? ['update', entity, 'Replace', { etag: version }] : ['create', entity]]
+            // Atomic outbox in the same partition: no successful public save can
+            // lose its publication request, including unpublish and trash.
+            if (publicChanged) actions.push(['upsert', { partitionKey: 'post', rowKey: '_publication', requestedId: randomUUID(), phase: 'pending', error: '', requestedAt: new Date().toISOString() }, 'Merge'])
+            await this.table.submitTransaction(actions)
         } catch (error) {
             await blob.deleteIfExists().catch(() => {})
             if ([409, 412].includes(error.statusCode)) throw conflict()
             throw error
         }
         return this.get(post.slug)
+    }
+    async publicationState() {
+        try {
+            const { partitionKey, rowKey, etag, timestamp, ...state } = await this.table.getEntity('post', '_publication')
+            return state
+        } catch (error) { if (error.statusCode === 404) return {}; throw error }
+    }
+    async updatePublication(state) { await this.table.upsertEntity({ partitionKey: 'post', rowKey: '_publication', ...state }, 'Merge') }
+    async requestPublication() { await this.updatePublication({ requestedId: randomUUID(), phase: 'pending', error: '', requestedAt: new Date().toISOString() }) }
+    async lockPublication() {
+        const blob = this.blobs.getContainerClient('articles').getBlockBlobClient('.publication-lock')
+        try { await blob.uploadData(Buffer.alloc(0), { conditions: { ifNoneMatch: '*' } }) }
+        catch (error) { if (![409, 412].includes(error.statusCode)) throw error }
+        const lease = blob.getBlobLeaseClient()
+        await lease.acquireLease(60)
+        return { renew: () => lease.renewLease(), release: () => lease.releaseLease() }
     }
     async upload(bytes, type, extension) {
         const name = `${randomUUID()}.${extension}`

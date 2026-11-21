@@ -18,7 +18,7 @@ function memoryStore(posts = [{ ...story }]) {
         async media() { return { readableStreamBody: Readable.from([Buffer.from('public-image')]) } },
         async publicationState() { return { ...state } },
         async updatePublication(change) { state = { ...state, ...change } },
-        async requestPublication() { state = { ...state, requestedId: String(Number(state.requestedId || 0) + 1), phase: 'pending' } },
+        async requestPublication(release) { state = { ...state, requestedId: String(Number(state.requestedId || 0) + 1), requestedRelease: release, phase: 'pending' } },
         async lockPublication() {
             if (locked) throw Object.assign(new Error('locked'), { statusCode: 409 })
             locked = true
@@ -65,6 +65,29 @@ test('Export rejects a changed article instead of accidentally publishing a new 
     store.get = async () => ({ ...story, status: 'draft', body: 'Secret new draft' })
     await assert.rejects(exportPublicSite({ store, output, editorOrigin }), /changed during export/)
 }))
+
+test('Public JSON cover URLs are exported even when HTML replaces a cover with inline artwork', () => withOutput(async output => {
+    const store = memoryStore([{ ...story, slug: 'learning-with-cuda' }])
+    await exportPublicSite({ store, output, editorOrigin })
+    const html = await readFile(join(output, 'articles/learning-with-cuda/index.html'), 'utf8')
+    assert.doesNotMatch(html, /src="\/media\/abc-123.png"/)
+    assert.equal(await readFile(join(output, 'media/abc-123.png'), 'utf8'), 'public-image')
+}))
+
+test('An old replica leaves a newer code release request for the intended publisher', async () => {
+    const store = memoryStore()
+    let oldDeployments = 0, newDeployments = 0
+    const old = createPublisher({ store, editorOrigin, release: 'old', deploy: async () => { oldDeployments++ } })
+    const latest = createPublisher({ store, editorOrigin, release: 'new', deploy: async () => { newDeployments++ } })
+    await store.requestPublication('new')
+    await old.kick()
+    assert.equal(oldDeployments, 0)
+    assert.equal((await store.publicationState()).deployedId, undefined)
+    await latest.kick()
+    assert.equal(newDeployments, 1)
+    assert.equal((await latest.status()).phase, 'live')
+    assert.equal((await store.publicationState()).release, 'new')
+})
 
 test('Public deployment serializes replicas and follows an update arriving during deployment', async () => {
     const store = memoryStore()

@@ -5,7 +5,7 @@ const secret = process.env.PUBLIC_DEPLOY_TRIGGER_SECRET
 if (!origin || !secret) throw new Error('Missing public deployment CI settings')
 async function request(method) {
     for (let attempt = 0; attempt < 12; attempt++) {
-        const response = await fetch(`${origin}/internal/publication`, { method, headers: { 'x-deploy-token': secret }, signal: AbortSignal.timeout(60000) })
+        const response = await fetch(`${origin}/internal/publication`, { method, headers: { 'x-deploy-token': secret, 'Content-Type': 'application/json' }, ...(method === 'POST' ? { body: JSON.stringify({ release: process.env.EXPECTED_RELEASE }) } : {}), signal: AbortSignal.timeout(60000) })
         if (response.ok) return response.json()
         // Ingress can briefly retain an old route after ARM reports readiness.
         if (![404, 502, 503, 504].includes(response.status) || attempt === 11) throw new Error(`Public deployment request failed (${response.status})`)

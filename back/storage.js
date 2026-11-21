@@ -91,7 +91,7 @@ class AzureStore {
         } catch (error) { if (error.statusCode === 404) return {}; throw error }
     }
     async updatePublication(state) { await this.table.upsertEntity({ partitionKey: 'post', rowKey: '_publication', ...state }, 'Merge') }
-    async requestPublication() { await this.updatePublication({ requestedId: randomUUID(), phase: 'pending', error: '', requestedAt: new Date().toISOString() }) }
+    async requestPublication(release) { await this.updatePublication({ requestedId: randomUUID(), requestedRelease: release, phase: 'pending', error: '', requestedAt: new Date().toISOString() }) }
     async lockPublication() {
         const blob = this.blobs.getContainerClient('articles').getBlockBlobClient('.publication-lock')
         try { await blob.uploadData(Buffer.alloc(0), { conditions: { ifNoneMatch: '*' } }) }

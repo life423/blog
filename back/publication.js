@@ -39,6 +39,8 @@ export function createPublisher({ store, deploy = deployStaticFiles, editorOrigi
             for (;;) {
                 const state = await store.publicationState()
                 if (!state.requestedId || state.requestedId === state.deployedId) return
+                // A retiring replica must not consume a newer release's request.
+                if (state.requestedRelease && state.requestedRelease !== release) return
                 let succeeded = false
                 for (let attempt = 0; attempt < 3; attempt++) {
                     if (abort.signal.aborted) throw new Error('Publication lease lost')
@@ -74,7 +76,7 @@ export function createPublisher({ store, deploy = deployStaticFiles, editorOrigi
     }
     return {
         kick,
-        async request() { await store.requestPublication(); kick(); return this.status() },
+        async request(targetRelease = release) { await store.requestPublication(targetRelease); kick(); return this.status() },
         async status() {
             const state = await store.publicationState()
             const pending = Boolean(state.requestedId && state.requestedId !== state.deployedId)

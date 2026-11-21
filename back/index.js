@@ -32,9 +32,9 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
         if (!token || supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return res.sendStatus(401)
         next()
     }
-    app.post('/internal/publication', requireDeployToken, async (_req, res) => {
+    app.post('/internal/publication', requireDeployToken, async (req, res) => {
         if (!publisher) return res.status(503).json({ error: 'Static publishing is not configured' })
-        res.status(202).json(await publisher.request())
+        res.status(202).json(await publisher.request(req.body?.release))
     })
     app.get('/internal/publication', requireDeployToken, async (_req, res) => {
         res.set('Cache-Control', 'no-store')

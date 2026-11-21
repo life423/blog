@@ -4,9 +4,13 @@ const origin = process.env.EDITOR_ORIGIN
 const secret = process.env.PUBLIC_DEPLOY_TRIGGER_SECRET
 if (!origin || !secret) throw new Error('Missing public deployment CI settings')
 async function request(method) {
-    const response = await fetch(`${origin}/internal/publication`, { method, headers: { 'x-deploy-token': secret }, signal: AbortSignal.timeout(60000) })
-    if (!response.ok) throw new Error(`Public deployment request failed (${response.status})`)
-    return response.json()
+    for (let attempt = 0; attempt < 12; attempt++) {
+        const response = await fetch(`${origin}/internal/publication`, { method, headers: { 'x-deploy-token': secret }, signal: AbortSignal.timeout(60000) })
+        if (response.ok) return response.json()
+        // Ingress can briefly retain an old route after ARM reports readiness.
+        if (![404, 502, 503, 504].includes(response.status) || attempt === 11) throw new Error(`Public deployment request failed (${response.status})`)
+        await delay(5000)
+    }
 }
 const requested = await request('POST')
 for (let attempt = 0; attempt < 180; attempt++) {

@@ -10,8 +10,9 @@ import { collectStorageTiming } from './storage-timing.js'
 import { verifyPassword } from './auth.js'
 import { examples, escape, markdown, topics, validatePost } from './content.js'
 import { home, article, directory, shell } from './views.js'
+import { createPublisher } from './publication.js'
 
-export function createApp({ store = createStore(), preview = process.env.DESIGN_PREVIEW === 'true', credentials = { username: process.env.ADMIN_USERNAME, hash: process.env.ADMIN_PASSWORD_HASH } } = {}) {
+export function createApp({ store = createStore(), preview = process.env.DESIGN_PREVIEW === 'true', credentials = { username: process.env.ADMIN_USERNAME, hash: process.env.ADMIN_PASSWORD_HASH }, publisher = createPublisher({ store }) } = {}) {
     const app = express()
     const passwordLogin = Boolean(credentials.username && credentials.hash)
     if (process.env.NODE_ENV === 'production' && passwordLogin && !process.env.ADMIN_SESSION_SECRET) throw new Error('Production password login requires ADMIN_SESSION_SECRET')
@@ -23,6 +24,23 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
     app.use('/api/admin', (_req, res, next) => { res.set('Cache-Control', 'no-store'); next() })
 
     const sign = value => createHmac('sha256', secret).update(value).digest('hex')
+    // A separate CI credential can request a rebuild but cannot read drafts.
+    function requireDeployToken(req, res, next) {
+        const token = process.env.PUBLIC_DEPLOY_TRIGGER_SECRET
+        const supplied = Buffer.from(req.get('x-deploy-token') || '')
+        const expected = Buffer.from(token || '')
+        if (!token || supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return res.sendStatus(401)
+        next()
+    }
+    app.post('/internal/publication', requireDeployToken, async (_req, res) => {
+        if (!publisher) return res.status(503).json({ error: 'Static publishing is not configured' })
+        res.status(202).json(await publisher.request())
+    })
+    app.get('/internal/publication', requireDeployToken, async (_req, res) => {
+        res.set('Cache-Control', 'no-store')
+        if (!publisher) return res.status(503).json({ error: 'Static publishing is not configured' })
+        res.json(await publisher.status())
+    })
     function isAdmin(req) {
         if (passwordLogin) {
             const value = req.headers.cookie?.split(';').map(item => item.trim()).find(item => item.startsWith('blog-session='))?.slice(13)
@@ -44,11 +62,16 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
     }
     app.use('/api', (req, res, next) => {
         if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next()
-        const origin = process.env.PUBLIC_ORIGIN || `${req.protocol}://${req.get('host')}`
+        const origin = process.env.EDITOR_ORIGIN || process.env.PUBLIC_ORIGIN || `${req.protocol}://${req.get('host')}`
         if (req.get('origin') !== origin || req.get('x-blog-request') !== '1') return res.status(403).json({ error: 'This request must come from the blog editor.' })
         next()
     })
-    app.get('/api/admin/session', (req, res) => res.json({ authenticated: isAdmin(req), passwordLogin, storage: process.env.AZURE_STORAGE_ACCOUNT ? 'azure' : 'local', loginUrl: process.env.TRUST_AZURE_AUTH === 'true' ? '/.auth/login/aad?post_login_redirect_uri=/admin' : null }))
+    app.get('/api/admin/session', (req, res) => res.json({ authenticated: isAdmin(req), passwordLogin, storage: process.env.AZURE_STORAGE_ACCOUNT ? 'azure' : 'local', publicOrigin: process.env.PUBLIC_BLOG_ORIGIN || '/', staticPublishing: Boolean(publisher), loginUrl: process.env.TRUST_AZURE_AUTH === 'true' ? '/.auth/login/aad?post_login_redirect_uri=/admin' : null }))
+    app.get('/api/admin/publication', requireAdmin, async (_req, res) => res.json(publisher ? await publisher.status() : { phase: 'disabled' }))
+    app.post('/api/admin/publication', requireAdmin, async (_req, res) => {
+        if (!publisher) return res.status(503).json({ error: 'Static publishing is not configured' })
+        res.status(202).json(await publisher.request())
+    })
     app.post('/api/admin/login', rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: 'draft-8', legacyHeaders: false, message: { error: 'Too many sign-in attempts. Please wait 15 minutes before trying again.' } }), async (req, res) => {
         if (!passwordLogin) return res.status(503).json({ error: 'Administrator sign-in is not configured for this environment.' })
         const passwordMatches = await verifyPassword(req.body?.password, credentials.hash)
@@ -96,7 +119,9 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
         if (previous?.status === 'trashed') return res.status(409).json({ error: 'Restore this article from Trash before editing it.' })
         requireCurrentVersion(previous, req.body.version)
         const now = new Date().toISOString()
-        const saved = await store.save({ ...post, createdAt: previous?.createdAt || now, updatedAt: now, publishedAt: post.status === 'published' ? previous?.publishedAt || now : previous?.publishedAt || '', minutes: Math.max(1, Math.ceil(post.body.split(/\s+/).length / 220)) }, req.body.version || undefined)
+        const publicChanged = Boolean(publisher && (post.status === 'published' || previous?.status === 'published'))
+        const saved = await store.save({ ...post, createdAt: previous?.createdAt || now, updatedAt: now, publishedAt: post.status === 'published' ? previous?.publishedAt || now : previous?.publishedAt || '', minutes: Math.max(1, Math.ceil(post.body.split(/\s+/).length / 220)) }, req.body.version || undefined, { publicChanged })
+        if (publicChanged) publisher.kick()
         res.json(saved)
     })
     app.delete('/api/admin/posts/:slug', requireAdmin, async (req, res) => {
@@ -104,7 +129,10 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
         if (!post) return res.sendStatus(404)
         requireCurrentVersion(post, req.body.version)
         const now = new Date().toISOString()
-        res.json(await store.save({ ...post, status: 'trashed', deletedAt: now, updatedAt: now }, req.body.version || 'missing-version'))
+        const publicChanged = Boolean(publisher && post.status === 'published')
+        const saved = await store.save({ ...post, status: 'trashed', deletedAt: now, updatedAt: now }, req.body.version || 'missing-version', { publicChanged })
+        if (publicChanged) publisher.kick()
+        res.json(saved)
     })
     app.post('/api/admin/posts/:slug/restore', requireAdmin, async (req, res) => {
         const post = await store.get(req.params.slug)
@@ -137,7 +165,11 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
         } catch (error) { if (error.statusCode === 404) return res.sendStatus(404); throw error }
     })
     const front = fileURLToPath(new URL('../front/', import.meta.url))
-    app.get('/admin', (_req, res) => res.set('Cache-Control', 'no-store').sendFile(resolve(front, 'admin.html')))
+    app.get('/admin', (req, res) => {
+        res.set('Cache-Control', 'no-store')
+        if (process.env.EDITOR_ORIGIN && req.get('host') !== new URL(process.env.EDITOR_ORIGIN).host) return res.redirect(302, `${process.env.EDITOR_ORIGIN}/admin`)
+        res.sendFile(resolve(front, 'admin.html'))
+    })
     // Unfingerprinted asset URLs must revalidate after deployments.
     app.use(express.static(front, { index: false, dotfiles: 'deny', maxAge: 0 }))
     app.use((_req, res) => res.status(404).send(shell('<section class="content-width empty-state"><h1>Nothing here yet.</h1><a class="read-link" href="/">Back to the journal →</a></section>')))
@@ -148,6 +180,7 @@ export function createApp({ store = createStore(), preview = process.env.DESIGN_
         if (req.path.startsWith('/api/')) res.status(status).json({ error: message })
         else res.status(status).send(shell(`<section class="content-width empty-state"><h1>We couldn’t load this page.</h1><p>${escape(message)}</p><a class="read-link" href="/">Try the journal again →</a></section>`))
     })
+    publisher?.kick()
     return app
 }
 

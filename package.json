@@ -6,7 +6,7 @@
     "dev": "node --env-file-if-exists=.env --watch back/index.js",
     "start": "node --env-file-if-exists=.env back/index.js",
     "test": "npm run build && node --test && node scripts/verify-built-server.js",
-    "check": "node --check back/index.js && node --check back/storage.js && node --check back/views.js && node --check back/cuda-illustration.js && node --check front/js/admin.js && node --check front/js/blog.js && node --check front/js/reading.js && node --check front/js/scroll-progress.js && node --check front/js/in-view-animation.js && node --check scripts/build-server.js && node --check scripts/verify-built-server.js",
+    "check": "node --check back/index.js && node --check back/storage.js && node --check back/views.js && node --check back/cuda-illustration.js && node --check front/js/admin.js && node --check front/js/blog.js && node --check front/js/reading.js && node --check front/js/scroll-progress.js && node --check front/js/in-view-animation.js && node --check scripts/build-server.js && node --check scripts/verify-built-server.js && node --check back/static-public.js && node --check back/publication.js && node --check scripts/install-static-client.js && node --check scripts/deploy-static-site.js && node --check scripts/refresh-public-site.js",
     "build": "node scripts/build-server.js"
   },
   "author": "",

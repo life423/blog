@@ -46,6 +46,14 @@ is already connected to drewblogdata.
 
 ## Storage and deployment
 
+The approved public-hosting migration uses **Azure Static Web Apps Free**, with
+the existing scale-to-zero Node backend retained for the private editor and
+drafts. Publication changes and GitHub code releases automatically refresh the
+static site through one serialized deployment path. See
+[STATIC_PUBLISHING.md](docs/STATIC_PUBLISHING.md) for configuration, privacy,
+rollout verification and recovery. Its rollout status supersedes older hosting
+descriptions below.
+
 Read [the Azure architecture and release checklist](docs/AZURE_ARCHITECTURE.md).
 Azure Table Storage holds metadata; private Blob Storage holds article bodies and
 images. The storage account is provisioned and smoke-tested. **The Node application is deployed at https://blog.drewclark.io.** It uses the

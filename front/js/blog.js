@@ -8,6 +8,13 @@ initScrollProgress()
 initInViewAnimation()
 document.documentElement.classList.add('js')
 
+// Preserve older bookmarked query-string topic links on the static public site.
+if (document.documentElement.hasAttribute('data-static-public')) {
+    const topic = new URL(location.href).searchParams.get('topic')
+    const topics = { Development: 'development', DevOps: 'devops', 'AI & Experiments': 'ai-experiments' }
+    if (topics[topic]) location.replace(`${location.pathname.startsWith('/articles') ? '/articles' : ''}/topics/${topics[topic]}${location.hash || '#articles'}`)
+}
+
 for (const rail of document.querySelectorAll('.topic-nav')) {
     const selected = rail.querySelector('[aria-current]')
     if (selected) rail.scrollLeft = Math.max(0, selected.offsetLeft - rail.offsetLeft - 8)

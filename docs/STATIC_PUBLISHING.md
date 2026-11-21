@@ -10,7 +10,7 @@ maximum **2**, 0.25 vCPU and 0.5 GiB. Do not change to a paid SWA plan.
 
 - Public app: `beyond-the-stack`, resource group `portfolio-apps`, Free SKU.
 - Azure public URL: `https://polite-smoke-0976b660f.6.azurestaticapps.net`.
-- Intended custom domain: `https://blog.drewclark.io`.
+- Live custom domain: `https://blog.drewclark.io` (verified HTTPS, Free SKU).
 - Editor: `https://blogportfolio.victoriouspebble-1de6fe12.eastus2.azurecontainerapps.io/admin`.
 - Public `/admin` redirects to that editor; login credentials and private storage
   stay in the existing Container App. The editor can still have a cold start.
@@ -75,7 +75,7 @@ article data, draft visibility, login secrets, storage RBAC or minimum replicas.
 
 ## Verification at implementation
 
-25 source tests and five bundled backend checks pass locally. New cases exercise
+27 source tests and five bundled backend checks pass locally and in GitHub CI. New cases exercise
 private-data exclusion, image export, unpublish removal, changed-draft rejection,
 serialization across replicas, newer changes during deployment, failure/restart
 recovery, public mutation triggers and transactional outbox creation.
@@ -85,7 +85,73 @@ the homepage, article JSON and real 404s, and `/admin` redirects to the existing
 backend. Initial HTML response was 0.29 seconds. This is one response-time sample,
 not a complete browser rendering benchmark or a percentile.
 
-Production backend rollout, publish/update/unpublish smoke testing, custom-domain
-certificate/DNS cutover and responsive browser verification must be recorded
-before calling the migration complete. Squarespace requested SMS reauthentication
-before the domain-validation record could be added.
+## Completed production migration — November 21, 2026
+
+Deployed application release: `f0dccff19a0bc299bffaa222c2c16349108bf6cb`,
+healthy Container App revision `blogportfolio--0000023`.
+[GitHub CI/CD run 44941426332](https://github.com/life423/blog/actions/runs/44941426332)
+passed all check, image build/container smoke and backend/static deployment jobs.
+PRs #20–22 contain the migration and integration corrections. The first rollout
+exposed a readiness race and the native deployment client's need for a writable
+working directory; both were corrected and subsequently deployed successfully.
+CI requests now identify their intended release so retiring replicas cannot
+consume a newer release request.
+
+After Squarespace SMS reauthentication, the blog CNAME was changed to
+`polite-smoke-0976b660f.6.azurestaticapps.net` with TTL 300 seconds.
+`_dnsauth.blog` contains the SWA ownership proof. Azure reports the custom domain
+**Ready** with its automatically managed HTTPS certificate. Authoritative DNS and
+Google DNS return the new CNAME. No Ascend Avoid, Connect, CUDA or portfolio
+routing records were changed. The old blog binding/certificate remain intact
+for propagation and rollback; previously cached records had a four-hour TTL.
+
+Fresh Node HTTPS requests through the normal `blog.drewclark.io` hostname verified
+`data-static-public` on the homepage, directory, topic pages and CUDA article.
+The first request including HTML download took 413ms; subsequent connection-reused
+page requests took 60–63ms. Five independent curl processes against the static
+Azure hostname measured 191–223ms TTFB. These small samples are response timings,
+not field Core Web Vitals or latency percentiles. The browser profile and Windows
+curl used earlier in the investigation still reused the former server during
+the immediate cutover; the original backend remains available for those clients.
+
+An authenticated live smoke test used a uniquely named temporary article and
+image against the real backend and temporary SWA URL. It verified:
+
+- Draft save did not enqueue deployment or expose the draft; private preview worked.
+- Publish exported the article, homepage entry and uploaded image (37.64s).
+- Updating replaced the article text and directory title (22.30s).
+- Unpublishing returned the article and its exported image to HTTP 404, removed
+  listing entries, and preserved the private draft and preview (59.27s, overlapping
+  the final code rollout).
+- Trash/restore kept the article private; unauthenticated private API access was
+  rejected; logout worked. Only that test's records, body versions and image were
+  deleted. Final public JSON and deployment metadata contain the original two
+  published articles and no temporary validation article.
+
+The separate existing production smoke script also passed real login/secure
+cookies, draft CRUD, trash/restore, stale-version rejection, CSRF and media tests.
+Browser login succeeded at the editor's direct HTTPS origin with the existing
+credentials; its public-site status displayed "Public site is up to date."
+`blog.drewclark.io/admin` returns the expected editor redirect.
+
+Rendered checks used the static Azure URL while the custom domain's browser
+connection cache was transitioning: phone 390×844, tablet 820×1180, and large
+desktop. No horizontal document overflow or broken rendered images was observed.
+Mobile drawer open/Escape/focus return and generated topic/article navigation
+worked. Phone/tablet editor status remained readable without overflow. Screenshots
+and raw timing receipts are in ignored `.azure-local/validation/` and
+`.azure-local/static-live-evidence.json`. Native cross-document View Transition
+aborted/opt-in-disabled messages appeared during browser navigation; content and
+navigation still worked. Do not report a zero-console-error result.
+
+Conservative internal review of the small editor status addition, not measured
+quality scores: usability 9, hierarchy 9, consistency 9, responsiveness 9,
+feedback 9, accessibility 8, performance 8. Recommendations below 9, in priority
+order: (1) complete manual screen-reader/live-region and enlarged-text checks
+before claiming full WCAG conformance; (2) measure real browser LCP/INP/CLS and
+investigate the existing View Transition console messages separately. No field
+Core Web Vitals or exhaustive accessibility audit was performed in this migration.
+
+Final infrastructure check: backend min/max **0/2**, image as above, SWA **Free**.
+Public visits do not call the backend. The private editor can still cold-start;
+there is no keepalive, paid SWA upgrade, or always-running replica requirement.

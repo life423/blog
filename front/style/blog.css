@@ -296,3 +296,8 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
     .drawer nav a:hover .drawer-link-label, .drawer nav a:hover .drawer-link-arrow,
     .drawer nav a:active .drawer-link-label { transform: none; }
 }
+
+/* Keep the complete phone screen visible at every card and hero breakpoint. */
+.art-frame.art-frame--portrait { width: min(100%, 22rem); margin-inline: auto; clip-path: none; background: var(--brand-gray-100); }
+.feature-art-link .art-frame--portrait { max-width: 16rem; }
+.art-frame.art-frame--portrait img { width: 100%; height: auto; aspect-ratio: auto 412 / 839; object-fit: contain; clip-path: none; }

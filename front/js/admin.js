@@ -109,7 +109,7 @@ async function save(status) {
     if (cover && !$('#coverAlt').value.trim()) { showError(errorBox, 'Add a description for the cover image.'); $('#coverAlt').focus(); return }
     if (status === 'draft' && current?.status === 'published' && !confirm('Unpublish this article? It will remain saved as a private draft.')) return
     const data = Object.fromEntries(new FormData(editor))
-    const payload = { ...data, slug: $('#slug').value, status, cover, version: current?.version }
+    const payload = { ...data, slug: $('#slug').value, status, cover, coverLayout: cover === current?.cover ? current?.coverLayout : 'landscape', version: current?.version }
     setBusy(true)
     $('#save-status').textContent = 'Saving…'
     try {

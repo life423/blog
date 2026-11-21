@@ -1,5 +1,14 @@
 # UI/UX research and blog direction
 
+## November 21 article-cover correction
+
+The user rejected reusing the earlier Ascend Avoid desktop screenshot for the
+Android article. Use a distinct, real mobile gameplay capture in portrait.
+Portrait covers must show the complete mobile screen and controls in cards and
+article heroes. Keep portrait presentation opt-in with article cover metadata;
+preserve existing landscape art. Future articles need intentionally selected
+cover imagery rather than automatically copying a related article's picture.
+
 Research date: October 30, 2026. This is a design brief, not an implementation or
 approval to add every feature. The approved palette remains unchanged. The latest
 headline is **Full Stack Web Development**; the brand is **Beyond the Stack**.

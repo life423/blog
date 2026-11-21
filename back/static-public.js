@@ -44,6 +44,9 @@ export async function exportPublicSite({ store, output, editorOrigin, release = 
         await page(`articles/topics/${topicSlug(topic)}/index.html`, directory(filtered, { topic }))
     }
     for (const post of posts) await page(`articles/${post.slug}/index.html`, article(post))
+    // The public JSON listing also references covers, including stories whose
+    // HTML uses inline art instead. Preserve those public image URLs as well.
+    for (const post of posts) if (/^\/media\/[a-f0-9-]+\.(png|jpg|webp)$/.test(post.cover || '')) media.add(post.cover)
     await page('404.html', shell('<section class="content-width empty-state"><h1>Article not found.</h1><p>It may be a draft or the address may have changed.</p><a class="read-link" href="/">Back to the journal →</a></section>'))
     for (const path of media) {
         const image = await store.media(path.split('/').at(-1))

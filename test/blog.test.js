@@ -37,7 +37,7 @@ test('Draft privacy, authentication, CSRF, publish/unpublish and optimistic conc
         assert.ok(stylesheet.headers.get('etag'))
         assert.equal((await fetch(`${origin}/api/admin/posts`)).status, 401)
         const publicResponse = await fetch(`${origin}/api/posts`)
-        assert.match(publicResponse.headers.get('server-timing'), /^storage;dur=\d+\.\d$/)
+        assert.match(publicResponse.headers.get('server-timing'), /(?:^|, )storage;dur=\d+\.\d(?:,|$)/)
         assert.equal((await fetch(`${origin}/api/admin/login`, { method: 'POST' })).status, 403)
         assert.equal((await fetch(`${origin}/api/admin/login`, { method: 'POST', headers: { ...headers, origin: 'https://attacker.example' } })).status, 403)
         const wrong = await fetch(`${origin}/api/admin/login`, { method: 'POST', headers, body: JSON.stringify({ username: 'test-admin', password: 'incorrect' }) })
